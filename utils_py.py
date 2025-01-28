@@ -41,7 +41,9 @@ def listify(var: object) -> list:
         return var
     else:
         return [var]
-
+# =============================LIST METHODS=====================================
+def intersect_lists(l1: list, l2: list) -> list:
+    return [e for e in l1 if e in l2]
 # =============================DICT METHODS=====================================
 
 def get_key(d: dict, key, builder, default: object = None) -> object:
@@ -56,8 +58,11 @@ def safe_get_key(d: dict, key, builder, default: object = None) -> object:
     else:
         return default
 
+def intersect_dict_keys(d: dict, keys: list[str]) -> dict:
+    return {k: d[k] for k in keys if k in d}
 
-
+def remove_keys(d: dict, keys: list[str]) -> dict:
+    return {k: v for k, v in d.items() if not k in keys}
 
 
 
