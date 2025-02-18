@@ -66,7 +66,9 @@ def execute_command_get_ouput(cmd: str, rundir: Path = None):
     try:
         if not rundir: rundir = os.getcwd()
         ret = subprocess.check_output(
-            cmd, stderr=subprocess.STDOUT,shell=True).strip().decode('utf-8')
+            cmd, cwd=rundir, 
+            stderr=subprocess.STDOUT,shell=True).strip().decode('utf-8')
         return ret
-    except:
+    except Exception as e:
+        print(e)
         return "ERROR"
