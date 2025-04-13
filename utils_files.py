@@ -10,6 +10,8 @@ def check_file_exists_exception(file_path: Path):
         raise Exception(file_path, "not found!")
 
 def check_path_exists(folder_path: Path):
+    if isinstance(folder_path, str):
+        folder_path = Path(folder_path)
     return folder_path.exists()
 
 def check_path_exists_exception(folder_path: Path):
@@ -18,6 +20,8 @@ def check_path_exists_exception(folder_path: Path):
 
 # ========================CREATE DIRS===========================================
 def create_dir(folder_path: Path):
+    if isinstance(folder_path, str):
+        folder_path = Path(folder_path)
     if not folder_path.exists():
         folder_path.mkdir(parents=True, exist_ok=True)
     else:
