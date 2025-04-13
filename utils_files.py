@@ -56,3 +56,20 @@ def copy_file(source: Path, destination: Path):
     except Exception as e:
         print(f"Error: {e}")
 
+# =======================GEN SYMLINKS===========================================
+
+def gen_symlink(source: Path, destination: Path):
+    destination.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        # Si ya existe algo en destination, lo quitamos
+        if destination.exists() or destination.is_symlink():
+            destination.unlink()
+
+        # Crear symlink relativo si es posible
+        relative_target = source.relative_to(destination.parent) if source.is_absolute() and destination.parent in source.parents else source
+        destination.symlink_to(relative_target)
+        print(f"Created symlink: {destination} -> {relative_target}")
+
+    except Exception as e:
+        raise RuntimeError(f"Failed to create symlink from {destination} to {source}: {e}")
