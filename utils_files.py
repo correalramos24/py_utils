@@ -19,16 +19,28 @@ def check_path_exists_exception(folder_path: Path):
         raise Exception(f"{folder_path} not found!")
 
 # ========================CREATE DIRS===========================================
-def create_dir(folder_path: Path):
-    if isinstance(folder_path, str):
-        folder_path = Path(folder_path)
-    if not folder_path.exists():
-        folder_path.mkdir(parents=True, exist_ok=True)
-    else:
+def create_dir(folder_path: Path, overwrite: bool = False):
+    if isinstance(folder_path, str): folder_path = Path(folder_path)
+        
+    if folder_path.exists() and overwrite:
+        for item in folder_path.iterdir():
+            if item.is_dir():
+                shutil.rmtree(item)
+            else:
+                item.unlink()
+    elif folder_path.exists():
         raise Exception("Creating an already existing dir!")
+    
+    folder_path.mkdir(parents=True, exist_ok=True)
+        
 
 # ========================COPY FILES============================================
-def copy_folder(reference_folder: Path, destination_folder: Path, force: bool):
+def copy_folder(reference_folder: Path, destination_folder: Path, force: bool,
+                preserve_symlinks: bool = True):
+    
+    if  isinstance(reference_folder, str): reference_folder = Path(reference_folder)
+    if  isinstance(destination_folder, str): destination_folder = Path(destination_folder)
+    
     if not reference_folder.exists():
         raise FileNotFoundError(f"Reference folder '{reference_folder}' not found.")
     
@@ -41,8 +53,9 @@ def copy_folder(reference_folder: Path, destination_folder: Path, force: bool):
         else:
             shutil.rmtree(destination_folder)
     
-    shutil.copytree(reference_folder, destination_folder, symlinks=True)
+    shutil.copytree(reference_folder, destination_folder, symlinks=preserve_symlinks)
     print(f"Generated '{destination_folder}' from '{reference_folder}'.")
+
 
 def copy_file(source: Path, destination: Path):
     if not source.is_file():
