@@ -15,6 +15,7 @@ def check_path_exists(folder_path: Path):
     return folder_path.exists()
 
 def check_path_exists_exception(folder_path: Path):
+    if isinstance(folder_path, str): folder_path = Path(folder_path)
     if not folder_path.exists():
         raise Exception(f"{folder_path} not found!")
 
