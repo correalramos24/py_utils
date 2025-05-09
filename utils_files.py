@@ -20,10 +20,10 @@ def check_path_exists_exception(folder_path: Path):
         raise Exception(f"{folder_path} not found!")
 
 # ========================CREATE DIRS===========================================
-def create_dir(folder_path: Path):
+def create_dir(folder_path: Path, overwrite: bool = False):
     if isinstance(folder_path, str):
         folder_path = Path(folder_path)
-    if not folder_path.exists():
+    if (not folder_path.exists()) or overwrite:
         folder_path.mkdir(parents=True, exist_ok=True)
     else:
         raise Exception("Creating an already existing dir!")
