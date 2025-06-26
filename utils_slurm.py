@@ -9,7 +9,7 @@ slurm_syntax = {
     "nodes" : "-N", "mpi" : "--ntasks-per-node", "cpus" : "-c",
     "account": "-A", "queue" : "--qos", "time_limit" : "--time",
     "wait" : "-W","contiguous" : "--contiguous",
-    "workdir" : "-D"
+    "workdir" : "-D", "job_name": "-J",
 }
 
 def generate_slurm_script(f_path: Path, log_file: str,
