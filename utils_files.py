@@ -28,7 +28,10 @@ def create_dir(folder_path: Path, overwrite: bool = False):
         raise Exception("Creating an already existing dir!")
 
 # ========================COPY FILES============================================
-def copy_folder(reference_folder: Path, destination_folder: Path, force: bool):
+def copy_folder(reference_folder: Path, 
+                destination_folder: Path, 
+                force: bool, 
+                preserve_symlinks: bool = False):
     if not reference_folder.exists():
         raise FileNotFoundError(f"Reference folder '{reference_folder}' not found.")
     
@@ -41,7 +44,7 @@ def copy_folder(reference_folder: Path, destination_folder: Path, force: bool):
         else:
             shutil.rmtree(destination_folder)
     
-    shutil.copytree(reference_folder, destination_folder, symlinks=True)
+    shutil.copytree(reference_folder, destination_folder, symlinks=preserve_symlinks)
     print(f"Generated '{destination_folder}' from '{reference_folder}'.")
 
 def copy_file(source: Path, destination: Path):
