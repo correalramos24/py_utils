@@ -1,3 +1,4 @@
+from termcolor import colored
 
 verbose_level    = 3
 enable_info_flag = False
@@ -22,11 +23,11 @@ def info2(*msg_args):
         print("INFO2:", *msg_args)
 
 def warning(*msg_args: str):
-    print("WARNING!", *msg_args)
+    print(colored("WARN!", "yellow"), *msg_args)
 
 def error(*msg_args: str):
-    print("ERROR!", *msg_args)
+    print(colored("ERROR", "red"), *msg_args)
 
 def critical(*msg_args: str, err_code=1):
-    print("CRITICAL!", *msg_args)
-    exit(err_code)    
+    print(colored("ERROR", "red"), *msg_args)
+    exit(err_code)
