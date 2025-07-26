@@ -73,7 +73,27 @@ def gen_symlink(source: Path, destination: Path):
         # Crear symlink relativo si es posible
         relative_target = source.relative_to(destination.parent) if source.is_absolute() and destination.parent in source.parents else source
         destination.symlink_to(relative_target)
-        print(f"Created symlink: {destination} -> {relative_target}")
 
     except Exception as e:
         raise RuntimeError(f"Failed to create symlink from {destination} to {source}: {e}")
+
+def gen_symlink_from_folder(source: Path, destination: Path, only_big_files: bool = False):
+    """
+    Create a symlink for each file/folder in the source folder to the destination folder.
+    """
+    if not source.is_dir():
+        raise NotADirectoryError(f"Source '{source}' is not a directory.")
+
+    destination.mkdir(parents=True, exist_ok=True)
+
+    for item in source.iterdir():
+        src_item = item
+        dest_item = destination / item.name
+        if only_big_files:
+            if item.is_file() and item.stat().st_size > 250 * 1024 * 1024:
+                gen_symlink(src_item, dest_item)
+            else:
+                # Copy the file instead of creating a symlink
+                copy_file(src_item, dest_item)
+        else:
+            gen_symlink(src_item, dest_item)
