@@ -6,10 +6,16 @@ import subprocess
 from .utils_print import *
 
 slurm_syntax = {
-    "nodes" : "-N", "mpi" : "--ntasks-per-node", "cpus" : "-c",
-    "account": "-A", "queue" : "--qos", "time_limit" : "--time",
-    "wait" : "-W","contiguous" : "--contiguous",
-    "workdir" : "-D", "job_name": "-J",
+    "nodes" : "-N", 
+    "mpi" : "--ntasks-per-node", 
+    "cpus" : "-c",
+    "tasks" : "--ntasks",
+    "account": "-A", 
+    "queue" : "--qos", 
+    "time_limit" : "--time",
+    "wait" : "-W",
+    "contiguous" : "--contiguous",
+    "workdir" : "-D"
 }
 
 def generate_slurm_script(f_path: Path, log_file: str,
