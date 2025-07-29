@@ -41,6 +41,10 @@ def listify(var: object) -> list:
         return var
     else:
         return [var]
+    
+def search_char_in_str(s: str, char: str = "&") -> list[int, int]:
+    return [i for i, c in enumerate(s) if c == char]
+    
 # =============================LIST METHODS=====================================
 def intersect_lists(l1: list, l2: list) -> list:
     return [e for e in l1 if e in l2]
