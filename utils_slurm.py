@@ -15,7 +15,9 @@ slurm_syntax = {
     "time_limit" : "--time",
     "wait" : "-W",
     "contiguous" : "--contiguous",
-    "workdir" : "-D"
+    "workdir" : "-D",
+    "exclusive" : "--exclusive",
+    "job_name" : "--job-name",
 }
 
 def generate_slurm_script(f_path: Path, log_file: str,
