@@ -1,17 +1,66 @@
-
-from .utils_print import info, info2, warning
+from .utils_py import safe_return
+from .utils_print2 import myLogger
 from .utils_files import create_dir, check_path_exists
 from abc import ABC, abstractmethod
 
 from pathlib import Path
 import pickle as pkl
 
-class AbstractFrontend(ABC):
+class metaAbstractClass(ABC):
+    @classmethod
+    def _info(cls, *msg): myLogger.info(cls.__name__, *msg)
+    
+    @classmethod
+    def _log(cls, *msg): myLogger.log(cls.__name__, *msg)
+    
+    @classmethod
+    def _ok(cls, *msg): myLogger.success(cls.__name__, *msg)
+    
+    @classmethod
+    def _warn(cls, *msg): myLogger.warning(cls.__name__, *msg)
+    
+    @classmethod
+    def _err(cls, *msg): myLogger.error(cls.__name__, *msg)
+    
+    @classmethod
+    def _critical(cls, *msg): myLogger.critical(cls.__name__, *msg)
+
+class AbstractFrontend(metaAbstractClass):
     @abstractmethod
     def loop(self):
         pass
 
-class AbstractPersistance(ABC):
+class AbstractCLI(AbstractFrontend):
+            
+    @abstractmethod
+    def get_callbacks(self) -> dict[str, callable]:
+        pass
+    
+    def loop(self):
+        self._pre_loop_txt()
+        cmds = list(self.get_callbacks().keys())
+        cmd : int = 0
+        while cmd >= 0:
+            cmd = self.__next_op()
+            if cmd < 0: break
+            if cmd > len(cmds): print("Invalid cmd:", cmd)
+            else: self.get_callbacks()[cmds[cmd-1]]()
+            print("-"*80)
+        self._post_loop_txt()
+        
+    def _pre_loop_txt(self):
+        self._info("Initializing CLI!")
+    
+    def _post_loop_txt(self):
+        self._info("Finishing CLI")
+    
+    @safe_return(default=0)
+    def __next_op(self):
+        for i, cmd in enumerate(list(self.get_callbacks().keys())):
+            print('>',i+1, cmd)
+        return int(input("ENTER COMMAND: "))
+
+class AbstractPersistance(metaAbstractClass):
     
     def __init__(self, root_path: Path):
         self.root : Path = root_path
@@ -21,7 +70,7 @@ class AbstractPersistance(ABC):
         if check_path_exists(root_path):  
             self._info("INIT @", root_path)
             self._load_metadata()
-            self._info2("METADATA:", self.entities)
+            self._log("METADATA:", self.entities)
         else:
             self._info("NEW PERSISTANCE @", root_path)
             create_dir(self.root, False)
@@ -50,12 +99,3 @@ class AbstractPersistance(ABC):
     def _save_metadata(self):
         with open(self.meta, "wb") as md_file:
             pkl.dump(self.entities, md_file)
-            
-
-    @staticmethod
-    def _info(*args): info("DATABS:", *args)
-    @staticmethod
-    def _info2(*args): info2("DATABS:", *args)
-    @staticmethod
-    def _warn(*args): warning("DATABS:", *args)
-    
