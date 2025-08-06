@@ -31,23 +31,23 @@ class myLogger:
     @classmethod
     def debug(cls,*msg_args):
         if cls.verbose_level >= myLoggerLevels.DEBUG:
-            print(colored("DEBUG:".ljust(10) + " ".join(msg_args), "blue"))
+            print(colored("DEBUG:".ljust(10) + " ".join(str(arg) for arg in msg_args), "blue"))
 
     @classmethod
     def success(cls,*msg_args: str):
-        print(colored("SUCCES!".ljust(10) + " ".join(msg_args), "green"))
+        print(colored("SUCCES!".ljust(10) + " ".join(str(arg) for arg in msg_args), "green"))
 
     @classmethod
     def warning(cls,*msg_args: str):
-        print(colored("WARN!".ljust(10) + " ".join(msg_args), "yellow"))
+        print(colored("WARN!".ljust(10) + " ".join(str(arg) for arg in msg_args), "yellow"))
 
     @classmethod
     def error(cls,*msg_args: str):
-        print(colored("ERROR!".ljust(10) + " ".join(msg_args), "red"))
+        print(colored("ERROR!".ljust(10) + " ".join(str(arg) for arg in msg_args), "red"))
 
     @classmethod
     def critical(cls,*msg_args: str):
-        print(colored("CRITICAL!".ljust(10) + " ".join(msg_args), "red"))
+        print(colored("CRITICAL!".ljust(10) + " ".join(str(arg) for arg in msg_args), "red"))
 
 def main():
     myLogger.set_verbose_lvl(myLoggerLevels.VERBOSE)
