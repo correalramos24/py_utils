@@ -6,8 +6,10 @@ enable_ultra_info= False
 
 def enable_info(e: bool):
     global enable_info_flag 
+    global enable_ultra_info
     enable_info_flag = e
-
+    enable_ultra_info = e
+    
 def log(*msg_args):
     if verbose_level >1 : return
     print("LOG:", *msg_args)

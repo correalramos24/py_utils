@@ -1,4 +1,6 @@
-import pathlib
+from .utils_print import error
+
+import pathlib, functools
 
 # =============================CHECK TYPES======================================
 def is_a_list(var) -> bool:
@@ -68,6 +70,25 @@ def intersect_dict_keys(d: dict, keys: list[str]) -> dict:
 def remove_keys(d: dict, keys: list[str]) -> dict:
     return {k: v for k, v in d.items() if not k in keys}
 
+# ==============================DECORATORS=====================================
 
+def check_excpetions(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            error(e)
+    return wrapper
 
-
+def safe_return(default: any):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                error(e)
+                return default
+        return wrapper
+    return decorator
