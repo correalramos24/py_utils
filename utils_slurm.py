@@ -42,7 +42,7 @@ def generate_slurm_script(f_path: Path, log_file: str,
 """)
         log(f"Created", f_path)
 
-def execute_slurm_script(script, args, rundir):
+def execute_slurm_script(script, args, rundir, env=None):
     if args:
         args_str = "with " + args
     else: 
@@ -50,7 +50,13 @@ def execute_slurm_script(script, args, rundir):
         args_str = "without args"
     
     info(f"Submitting {script} {args_str} at {rundir}")
-    
-    subprocess.run(f"sbatch --parsable {script} {args}", cwd=rundir, 
+    if env:
+        info(f"Using env str", env)
+        env = f"--export ALL,{env}"
+    else:
+        env = ""
+    submission_str = f"sbatch --parsable {env} {script} {args}"
+    print("Submitting", submission_str)
+    subprocess.run(submission_str, cwd=rundir, 
             shell=True, text=True, stderr=subprocess.STDOUT)
 

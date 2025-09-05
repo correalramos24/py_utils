@@ -1,5 +1,6 @@
 from pathlib import Path
 import shutil
+import os
 
 # ========================CHECK PRESENCE========================================
 def check_file_exists(file_path: Path):
@@ -22,6 +23,8 @@ def check_path_exists_exception(folder_path: Path):
 # ========================CREATE DIRS===========================================
 def create_dir(folder_path: Path, overwrite: bool = False):
     if isinstance(folder_path, str): folder_path = Path(folder_path)    
+    if folder_path.exists() and overwrite: 
+        shutil.rmtree(folder_path)
     if (not folder_path.exists()) or overwrite:
         folder_path.mkdir(parents=True, exist_ok=True)
     else:
@@ -41,11 +44,59 @@ def copy_folder(reference_folder: Path,
     if destination_folder.exists():
         if not force:
             raise FileExistsError(f"Destination folder '{destination_folder}' exists, use force.")
-        else:
-            shutil.rmtree(destination_folder)
     
-    shutil.copytree(reference_folder, destination_folder, symlinks=preserve_symlinks)
+    shutil.copytree(reference_folder, destination_folder, 
+                    symlinks=preserve_symlinks, 
+                    dirs_exist_ok=True)
+    
     print(f"Generated '{destination_folder}' from '{reference_folder}'.")
+
+def copy_folder_content(ref_folder: Path,trg_folder: Path,
+                        force: bool, preserve_symlinks: bool = False,
+                        only_big_files: bool = True,
+                        big_file_threshold: int = 2 * 1024 * 1024):
+    
+    if isinstance(ref_folder, str): ref_folder = Path(ref_folder)
+    if isinstance(trg_folder, str): trg_folder = Path(trg_folder)
+    
+    if not ref_folder.exists(): 
+        raise Exception(f"Ref. folder '{ref_folder}' not found")
+    
+    trg_folder.mkdir(parents=True, exist_ok=True)
+    for item in ref_folder.rglob('*'):
+        rel_path = item.relative_to(ref_folder)
+        dest_path = trg_folder / rel_path
+
+        if item.is_dir():
+            dest_path.mkdir(parents=True, exist_ok=True)
+            continue
+
+        if dest_path.exists() or dest_path.is_symlink():
+            if force:
+                if dest_path.is_dir():
+                    shutil.rmtree(dest_path)
+                else:
+                    dest_path.unlink()
+            else:
+                continue  # skip if not forcing overwrite
+
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+
+        if item.is_symlink():
+            if preserve_symlinks:
+                link_target = os.readlink(item)  # Gets the raw link path (could be relative)
+                dest_path.symlink_to(link_target)
+            else:
+                resolved = item.resolve()
+                shutil.copy2(resolved, dest_path)
+
+        elif item.is_file():
+            if only_big_files and item.stat().st_size >= big_file_threshold:
+                # Create a relative symlink to the source file from dest
+                relative_target = os.path.relpath(item.resolve(), start=dest_path.parent)
+                dest_path.symlink_to(relative_target)
+            else:
+                shutil.copy2(item, dest_path)
 
 def copy_file(source: Path, destination: Path):
     if not source.is_file():
@@ -89,7 +140,7 @@ def gen_symlink_from_folder(source: Path, destination: Path, only_big_files: boo
         src_item = item
         dest_item = destination / item.name
         if only_big_files:
-            if item.is_file() and item.stat().st_size > 250 * 1024 * 1024:
+            if item.is_file() and item.stat().st_size > 10 * 1024 * 1024:
                 gen_symlink(src_item, dest_item)
             else:
                 # Copy the file instead of creating a symlink
