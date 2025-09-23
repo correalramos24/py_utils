@@ -1,35 +1,50 @@
 from termcolor import colored
+from enum import IntEnum
 
-verbose_level    = 3
-enable_info_flag = False
-enable_ultra_info= False
+class myLoggerLevels(IntEnum):
+    NO      = 0
+    INFO    = 1
+    LOG     = 2
+    DEBUG   = 3
+    VERBOSE = 4
 
-def enable_info(e: bool):
-    global enable_info_flag 
-    global enable_ultra_info
-    enable_info_flag = e
-    enable_ultra_info = e
-    
-def log(*msg_args):
-    if verbose_level >1 : return
-    print("LOG:", *msg_args)
+class myLogger:
 
-def info(*msg_args):
-    global enable_info_flag
-    if enable_info_flag:
-        print("INFO:", *msg_args)
+    verbose_level : myLoggerLevels = myLoggerLevels.INFO
 
-def info2(*msg_args):
-    global enable_ultra_info
-    if enable_ultra_info:
-        print("INFO2:", *msg_args)
+    @classmethod
+    def set_verbose_lvl(cls, log_level : myLoggerLevels):
+        if log_level not in myLoggerLevels:
+            raise Exception("Invalid log_level", log_level)
+        cls.verbose_level = log_level
 
-def warning(*msg_args: str):
-    print(colored("WARN!", "yellow"), *msg_args)
+    @classmethod
+    def info(cls, *msg_args: str):
+        if cls.verbose_level >= myLoggerLevels.INFO:
+            print("INFO:".ljust(9), *msg_args)
 
-def error(*msg_args: str):
-    print(colored("ERROR", "red"), *msg_args)
+    @classmethod
+    def log(cls,*msg_args: str):
+        if cls.verbose_level >= myLoggerLevels.LOG:
+            print(colored("LOG:".ljust(10) + " ".join(str(arg) for arg in msg_args), "cyan"))
 
-def critical(*msg_args: str, err_code=1):
-    print(colored("ERROR", "red"), *msg_args)
-    exit(err_code)
+    @classmethod
+    def debug(cls,*msg_args: str):
+        if cls.verbose_level >= myLoggerLevels.DEBUG:
+            print(colored("DEBUG:".ljust(10) + " ".join(str(arg) for arg in msg_args), "blue"))
+
+    @classmethod
+    def success(cls,*msg_args: str):
+        print(colored("SUCCES!".ljust(10) + " ".join(str(arg) for arg in msg_args), "green"))
+
+    @classmethod
+    def warning(cls,*msg_args: str):
+        print(colored("WARN!".ljust(10) + " ".join(str(arg) for arg in msg_args), "yellow"))
+
+    @classmethod
+    def error(cls,*msg_args: str):
+        print(colored("ERROR!".ljust(10) + " ".join(str(arg) for arg in msg_args), "red"))
+
+    @classmethod
+    def critical(cls,*msg_args: str):
+        print(colored("CRITICAL!".ljust(10) + " ".join(str(arg) for arg in msg_args), "red"))
