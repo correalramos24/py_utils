@@ -1,4 +1,4 @@
-from .utils_print import myLogger
+from .utils_print import MyLogger
 
 from typing import cast, Callable
 from pathlib import Path
@@ -8,6 +8,7 @@ import functools
 def is_list(var : object) -> bool: return isinstance(var, list)
 def is_str(var: object) -> bool: return isinstance(var, str)
 def is_path(var: object) -> bool: return isinstance(var, Path)
+def pathfy(var: str|Path) -> Path: return Path(var)
 # =============================PATH METHODS=====================================
 def path_to_str(p: Path) -> str: return str(p.name).replace("/", "-")
 def fpath_to_str(p: Path) -> str: return str(p).replace("/", "-")
@@ -18,14 +19,14 @@ def stringfy(var : Path | object | list[object] | object ) -> str:
     elif isinstance(var, list): return ','.join(str(e) for e in var)
     else: return str(var)
 
+def search_char_in_str(s: str, char: str = "&") -> list[int]:
+    return [i for i, c in enumerate(s) if c == char]
+# =============================LIST METHODS=====================================
 def listify(var: object| list[object] | None) -> list[object] | None:
     """Convert var to list, if it is not already a list or none"""
     if is_list(var) or var is None: return var
     else: return [var]
 
-def search_char_in_str(s: str, char: str = "&") -> list[int]:
-    return [i for i, c in enumerate(s) if c == char]
-# =============================LIST METHODS=====================================
 def intersect_lists(l1: list[object], l2: list[object]) -> list[object]:
     return [e for e in l1 if e in l2]
 # =============================DICT METHODS=====================================
@@ -59,7 +60,7 @@ def check_exceptions(func: Callable[[object], object]):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            myLogger.error(str(e))
+            MyLogger.error(str(e))
     return wrapper
 
 def safe_return(default: object):
@@ -69,7 +70,7 @@ def safe_return(default: object):
             try:
                 return func(*args, **kwargs)
             except Exception as e:
-                myLogger.error(str(e))
+                MyLogger.error(str(e))
                 return default
         return wrapper
     return decorator
