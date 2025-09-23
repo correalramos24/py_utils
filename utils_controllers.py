@@ -1,46 +1,80 @@
-from .utils_py import safe_return, is_a_list
-from .utils_print2 import myLogger
+from .utils_py import safe_return, is_list
+from .utils_print import MyLogger
 from .utils_files import create_dir, check_path_exists
+
+from typing import Callable, Any
 from abc import ABC, abstractmethod
 
 from pathlib import Path
 import pickle as pkl
 
 class metaAbstractClass(ABC):
-    def className(self) -> str:
-        return self.__class__.__name__
+    def className(self) -> str: return self.__class__.__name__
     @classmethod
-    def _info(cls, *msg): myLogger.info(cls.__name__, *msg)
-    
+    def _info(cls, *msg): MyLogger.info(cls.__name__, *msg)
     @classmethod
-    def _log(cls, *msg): myLogger.log(cls.__name__, *msg)
-    
+    def _log(cls, *msg): MyLogger.log(cls.__name__, *msg)
     @classmethod
-    def _dbg(cls, *msg): myLogger.debug(cls.__name__, *msg)
-    
+    def _dbg(cls, *msg): MyLogger.debug(cls.__name__, *msg)
     @classmethod
-    def _ok(cls, *msg): myLogger.success(cls.__name__, *msg)
-    
+    def _ok(cls, *msg): MyLogger.success(cls.__name__, *msg)
     @classmethod
-    def _warn(cls, *msg): myLogger.warning(cls.__name__, *msg)
-    
+    def _warn(cls, *msg): MyLogger.warning(cls.__name__, *msg)
     @classmethod
-    def _err(cls, *msg): myLogger.error(cls.__name__, *msg)
-    
+    def _err(cls, *msg): MyLogger.error(cls.__name__, *msg)
     @classmethod
-    def _critical(cls, *msg): myLogger.critical(cls.__name__, *msg)
+    def _critical(cls, *msg): MyLogger.critical(cls.__name__, *msg)
 
+# ================================BACKEND=======================================
+class AbstractPersistance(metaAbstractClass):
+    def __init__(self, root_path: Path):
+        self.root : Path = root_path
+        self.meta : Path = Path(self.root, "meta.data")
+        self.entities : dict[str, Any] = dict()
+
+        if check_path_exists(root_path):
+            self._info("INIT @", root_path)
+            self._load_metadata()
+            self._log("METADATA:", self.entities)
+        else:
+            self._info("NEW PERSISTANCE @", root_path)
+            create_dir(self.root, False)
+            self._save_metadata()
+
+    #========================INTERFACE METHODS==================================
+    @abstractmethod
+    def store(self, content: Any, pers_id : str):
+        pass
+
+    @abstractmethod
+    def load(self, pers_id: str):
+        pass
+
+    def exist(self, pers_id):
+        return pers_id in self.entities
+
+    def list_entities(self):
+        return list(self.entities.keys())
+    #==========================PRIVATE METHODS==================================
+    def _load_metadata(self):
+        with open(self.meta, "rb") as md_file:
+            self.entities = pkl.load(md_file)
+
+    def _save_metadata(self):
+        with open(self.meta, "wb") as md_file:
+            pkl.dump(self.entities, md_file)
+
+# ================================FRONTEND======================================
 class AbstractFrontend(metaAbstractClass):
     @abstractmethod
     def loop(self):
         pass
 
 class AbstractCLI(AbstractFrontend):
-            
     @abstractmethod
-    def get_callbacks(self) -> dict[str, callable]:
+    def get_callbacks(self) -> dict[str, Callable]:
         pass
-    
+
     def loop(self):
         self._pre_loop_txt()
         cmds = list(self.get_callbacks().keys())
@@ -52,38 +86,40 @@ class AbstractCLI(AbstractFrontend):
             else: self.get_callbacks()[cmds[cmd-1]]()
             print("-"*80)
         self._post_loop_txt()
-        
+
     def _pre_loop_txt(self):
         self._info("Initializing CLI!")
-    
+
     def _post_loop_txt(self):
         self._info("Finishing CLI")
-    
-    @safe_return(default=0)
-    def __next_op(self):
+
+    def __next_op(self) -> int:
         for i, cmd in enumerate(list(self.get_callbacks().keys())):
             print('>',i+1, cmd)
-        return int(input("ENTER COMMAND: "))
+        try:
+            return int(input("ENTER COMMAND: "))
+        except (ValueError, KeyboardInterrupt):
+            return 0
 
 class AbstractDomain(metaAbstractClass):
     def __init__(self, db_root : Path):
         self._info("Initializing domain...")
-        self.instances : dict[str, any] = dict()
+        self.instances : dict[str, Any] = dict()
         self.database  : AbstractPersistance = self.init_database(db_root)
         self._ok("DONE!")
-        
+
     @abstractmethod
-    def init_database(self, db_root=None):
+    def init_database(self, db_root=None) -> AbstractPersistance:
         pass
-    
+
     @abstractmethod
     def _create_new_instance(self):
         "Create an empty domain instance"
         pass
-    
+
     def get_avail_instances(self) -> list[str]:
         return [instance for instance in self.database.list_entities()]
-        
+
     def _get_instance(self, dom_id: str, create_if_missing=False):
         instance = self.instances.get(dom_id)
         if instance is not None:
@@ -105,48 +141,7 @@ class AbstractDomain(metaAbstractClass):
         self.instances[dom_id] = data
         if save:
             return self._save_domain(dom_id)
-    
+
     def _save_domain(self, dom_id) -> None:
         self._dbg(f"SAVE {dom_id} ({id(self.instances[dom_id])})")
         self.database.store(self.instances[dom_id], dom_id)
-
-
-class AbstractPersistance(metaAbstractClass):
-    
-    def __init__(self, root_path: Path):
-        self.root : Path = root_path
-        self.meta : Path = Path(self.root, "meta.data")
-        self.entities : dict[str, any] = dict()
-        
-        if check_path_exists(root_path):  
-            self._info("INIT @", root_path)
-            self._load_metadata()
-            self._log("METADATA:", self.entities)
-        else:
-            self._info("NEW PERSISTANCE @", root_path)
-            create_dir(self.root, False)
-            self._save_metadata()
-
-    #========================INTERFACE METHODS==================================
-    @abstractmethod
-    def store(self, content: any, pers_id : str):
-        pass
-    
-    @abstractmethod
-    def load(self, pers_id: str):
-        pass
-    
-    def exist(self, pers_id):
-        return pers_id in self.entities
-    
-    def list_entities(self):
-        return list(self.entities.keys())
-    
-    #==========================PRIVATE METHODS==================================
-    def _load_metadata(self):
-        with open(self.meta, "rb") as md_file:
-            self.entities = pkl.load(md_file)
-
-    def _save_metadata(self):
-        with open(self.meta, "wb") as md_file:
-            pkl.dump(self.entities, md_file)
