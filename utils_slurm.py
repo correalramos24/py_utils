@@ -1,17 +1,15 @@
-
-from pathlib import Path
 from .utils_print import *
 from pathlib import Path
 import subprocess
-from .utils_print import *
+from typing import Any
 
 slurm_syntax = {
-    "nodes" : "-N", 
-    "mpi" : "--ntasks-per-node", 
+    "nodes" : "-N",
+    "mpi" : "--ntasks-per-node",
     "cpus" : "-c",
     "tasks" : "--ntasks",
-    "account": "-A", 
-    "queue" : "--qos", 
+    "account": "-A",
+    "queue" : "--qos",
     "time_limit" : "--time",
     "wait" : "-W",
     "contiguous" : "--contiguous",
@@ -21,7 +19,7 @@ slurm_syntax = {
 }
 
 def generate_slurm_script(f_path: Path, log_file: str,
-                          slurm_directives: dict[str, any],
+                          slurm_directives: dict[str, Any],
                           cmds: list[str]):
     formatted_directives = ""
     for directive, val in slurm_directives.items():
@@ -45,10 +43,10 @@ def generate_slurm_script(f_path: Path, log_file: str,
 def execute_slurm_script(script, args, rundir, env=None):
     if args:
         args_str = "with " + args
-    else: 
+    else:
         args = ""
         args_str = "without args"
-    
+
     info(f"Submitting {script} {args_str} at {rundir}")
     if env:
         info(f"Using env str", env)
@@ -57,6 +55,5 @@ def execute_slurm_script(script, args, rundir, env=None):
         env = ""
     submission_str = f"sbatch --parsable {env} {script} {args}"
     print("Submitting", submission_str)
-    subprocess.run(submission_str, cwd=rundir, 
+    subprocess.run(submission_str, cwd=rundir,
             shell=True, text=True, stderr=subprocess.STDOUT)
-

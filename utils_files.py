@@ -1,5 +1,5 @@
-from utils_py import pathfy
-from utils_print import MyLogger
+from .utils_py import pathfy
+from .utils_print import MyLogger
 
 from functools import wraps
 from typing import Callable
