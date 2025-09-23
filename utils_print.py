@@ -1,50 +1,52 @@
-from termcolor import colored
 from enum import IntEnum
+from termcolor import colored
 
-class myLoggerLevels(IntEnum):
+class LoggerLevels(IntEnum):
     NO      = 0
     INFO    = 1
     LOG     = 2
     DEBUG   = 3
     VERBOSE = 4
 
-class myLogger:
+class MyLogger:
+    verbose_level: LoggerLevels = LoggerLevels.INFO
 
-    verbose_level : myLoggerLevels = myLoggerLevels.INFO
+    _LEVELS = {
+        "INFO":    {"level": LoggerLevels.INFO,    "color": None},
+        "LOG":     {"level": LoggerLevels.LOG,     "color": "cyan"},
+        "DEBUG":   {"level": LoggerLevels.DEBUG,   "color": "blue"},
+        "SUCCESS": {"level": LoggerLevels.INFO,    "color": "green"},
+        "WARNING": {"level": LoggerLevels.INFO,    "color": "yellow"},
+        "ERROR":   {"level": LoggerLevels.INFO,    "color": "red"},
+        "CRITICAL":{"level": LoggerLevels.INFO,    "color": "red"},
+    }
+    _LJ_CHARS = 9
+    _ALWAYS_PRINT = ("SUCCESS","WARNING","ERROR","CRITICAL")
+    @classmethod
+    def set_verbose_level(cls, level: LoggerLevels):
+        if level not in LoggerLevels:
+            raise ValueError(f"Invalid log level: {level}")
+        cls.verbose_level = level
 
     @classmethod
-    def set_verbose_lvl(cls, log_level : myLoggerLevels):
-        if log_level not in myLoggerLevels:
-            raise Exception("Invalid log_level", log_level)
-        cls.verbose_level = log_level
+    def _log(cls, label: str, *args: str):
+        info = cls._LEVELS[label]
+        if cls.verbose_level >= info["level"] or label in cls._ALWAYS_PRINT:
+            x = cls._LJ_CHARS
+            text = f"{label+":".ljust(x)} {' '.join(str(a) for a in args)}"
+            print(colored(text, info["color"]) if info["color"] else text)
 
     @classmethod
-    def info(cls, *msg_args: str):
-        if cls.verbose_level >= myLoggerLevels.INFO:
-            print("INFO:".ljust(9), *msg_args)
-
+    def info(cls, *args: str): cls._log("INFO", *args)
     @classmethod
-    def log(cls,*msg_args: str):
-        if cls.verbose_level >= myLoggerLevels.LOG:
-            print(colored("LOG:".ljust(10) + " ".join(str(arg) for arg in msg_args), "cyan"))
-
+    def log(cls, *args: str): cls._log("LOG", *args)
     @classmethod
-    def debug(cls,*msg_args: str):
-        if cls.verbose_level >= myLoggerLevels.DEBUG:
-            print(colored("DEBUG:".ljust(10) + " ".join(str(arg) for arg in msg_args), "blue"))
-
+    def debug(cls, *args: str): cls._log("DEBUG", *args)
     @classmethod
-    def success(cls,*msg_args: str):
-        print(colored("SUCCES!".ljust(10) + " ".join(str(arg) for arg in msg_args), "green"))
-
+    def success(cls, *args: str): cls._log("SUCCESS", *args)
     @classmethod
-    def warning(cls,*msg_args: str):
-        print(colored("WARN!".ljust(10) + " ".join(str(arg) for arg in msg_args), "yellow"))
-
+    def warning(cls, *args: str): cls._log("WARNING", *args)
     @classmethod
-    def error(cls,*msg_args: str):
-        print(colored("ERROR!".ljust(10) + " ".join(str(arg) for arg in msg_args), "red"))
-
+    def error(cls, *args: str): cls._log("ERROR", *args)
     @classmethod
-    def critical(cls,*msg_args: str):
-        print(colored("CRITICAL!".ljust(10) + " ".join(str(arg) for arg in msg_args), "red"))
+    def critical(cls, *args: str): cls._log("CRITICAL", *args)
