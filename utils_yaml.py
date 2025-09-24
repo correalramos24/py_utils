@@ -1,5 +1,5 @@
 import yaml
 from typing import Any
 
-def get_yaml_content(yaml_f : str) -> Any:
-    return yaml.safe_load(yaml_f)
+def get_yaml_content(yaml_fd) -> dict[str, object]:
+    return yaml.safe_load(yaml_fd)

@@ -1,6 +1,6 @@
 from .utils_print import MyLogger
 
-from typing import cast, Callable
+from typing import Iterable, Callable
 from pathlib import Path
 import functools
 
@@ -45,11 +45,11 @@ def safe_get_key(d: dict[object, object], k: object,
     else:
         return dflt
 
-def inter_dict_keys(d: dict[str, object],k: list[str]) -> dict[str, object]:
+def inter_dict_keys(d: dict[str, object],k: Iterable[str]) -> dict[str, object]:
     """Intersect dict keys with a list of keys"""
     return {_k: d[_k] for _k in k if _k in d}
 
-def remove_keys(d: dict[str, object], k: list[str]) -> dict[str, object]:
+def remove_keys(d: dict[str, object], k: Iterable[str]) -> dict[str, object]:
     """Remove keys from dict"""
     return {_k: v for _k, v in d.items() if not _k in k}
 
