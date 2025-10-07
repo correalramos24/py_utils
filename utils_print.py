@@ -1,5 +1,8 @@
 from enum import IntEnum
-from termcolor import colored
+try:
+    from termcolor import colored
+except ImportError:
+    colored = lambda x, y: x
 
 class LoggerLevels(IntEnum):
     NO      = 0
@@ -33,7 +36,8 @@ class MyLogger:
         info = cls._LEVELS[label]
         if cls.verbose_level >= info["level"] or label in cls._ALWAYS_PRINT:
             x = cls._LJ_CHARS
-            text = f"{label+":".ljust(x)} {' '.join(str(a) for a in args)}"
+            l = label.ljust(x)
+            text = f"{l+":"} {' '.join(str(a) for a in args)}"
             print(colored(text, info["color"]) if info["color"] else text)
 
     @classmethod
