@@ -21,6 +21,14 @@ def check_path_exists_exception(fldr_path: Path) -> None:
     if not check_path_exists(fldr_path):
         raise Exception(f"{fldr_path} not found!")
 
+def explore_fldr(root_path, file_name):
+    """Find file_name down the hierarchy of root_path"""
+    rundir_folders = []
+    for dirpath, _, filenames in os.walk(root_path):
+        if file_name in filenames:
+            rundir_folders.append(dirpath)
+    return rundir_folders
+
 # ========================CREATE DIRS===========================================
 def create_dir(fldr_path: Path, overwrite: bool = False):
     fldr_path = pathfy(fldr_path)

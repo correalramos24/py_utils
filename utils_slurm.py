@@ -1,6 +1,6 @@
 from .utils_print import *
 from pathlib import Path
-import subprocess
+import subprocess, re, os
 from typing import Any
 
 slurm_syntax = {
@@ -57,3 +57,30 @@ def execute_slurm_script(script, args, rundir, env=None):
     print("Submitting", submission_str)
     subprocess.run(submission_str, cwd=rundir,
             shell=True, text=True, stderr=subprocess.STDOUT)
+
+def get_slurm_env(env_file: Path) -> tuple[int,int,int,int]:
+    regex_num_nodes = re.compile(r'SLURM_NNODES=(\d+)')
+    regex_mpi_per_node = re.compile(r'SLURM_TASKS_PER_NODE=(\d+)')
+    regex_tasks        = re.compile(r'SLURM_NTASKS=(\d+)')
+    regex_omp_per_node = re.compile(r'SLURM_CPUS_PER_TASK=(\d+)')
+
+    nodes, mpi, omp, tasks = -1,-1,-1,-1
+    try:
+        with open(env_file) as slurm_env_file:
+            for line in slurm_env_file.readlines():
+                match_nodes = regex_num_nodes.search(line)
+                match_mpi_per_node = regex_mpi_per_node.search(line)
+                match_omp_per_node = regex_omp_per_node.search(line)
+                match_tasks        = regex_tasks.search(line)
+                if match_nodes:
+                    nodes = int(match_nodes.group(1))
+                if match_mpi_per_node:
+                    mpi = int(match_mpi_per_node.group(1))
+                if match_omp_per_node:
+                    omp = int(match_omp_per_node.group(1))
+                if match_tasks:
+                    tasks = int(match_tasks.group(1))
+    except Exception as e:
+        print(e)
+    finally:
+        return nodes, mpi, omp, tasks
