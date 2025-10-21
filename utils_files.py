@@ -4,7 +4,7 @@ from .utils_print import MyLogger
 from functools import wraps
 from typing import Callable
 from pathlib import Path
-import os, shutil
+import os, shutil, fnmatch
 
 # ========================CHECK PRESENCE========================================
 def file_exists(f_path: Path | str) -> bool:
@@ -28,6 +28,13 @@ def explore_fldr(root_path, file_name):
         if file_name in filenames:
             rundir_folders.append(dirpath)
     return rundir_folders
+
+def explore_fldr_wildcard(root_path, file_name_wildcard):
+    ret = []
+    for dirpath, _, fnames in os.walk(root_path):
+        if any(fnmatch.fnmatch(fname, file_name_wildcard) for fname in fnames):
+            ret.append(os.path.abspath(dirpath))
+    return ret
 
 # ========================CREATE DIRS===========================================
 def create_dir(fldr_path: Path, overwrite: bool = False):
