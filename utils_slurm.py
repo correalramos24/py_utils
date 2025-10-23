@@ -18,6 +18,7 @@ slurm_syntax = {
     "workdir" : "-D",
     "exclusive" : "--exclusive",
     "job_name" : "--job-name",
+    "perfparanoid" :"-C perfparanoid"
 }
 
 def generate_slurm_script(f_path: Path, log_file: str,
