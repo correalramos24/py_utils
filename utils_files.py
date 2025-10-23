@@ -1,71 +1,78 @@
+from .utils_py import pathfy
+from .utils_print import MyLogger
+
+from functools import wraps
+from typing import Callable
 from pathlib import Path
-import shutil
-import os
+import os, shutil, fnmatch
 
 # ========================CHECK PRESENCE========================================
-def check_file_exists(file_path: Path):
-    return file_path.is_file()
+def file_exists(f_path: Path | str) -> bool:
+    return pathfy(f_path).is_file()
 
-def check_file_exists_exception(file_path: Path):
-    if not file_path.is_file():
-        raise Exception(file_path, "not found!")
+def check_file_exists_exception(f_path: Path):
+    if not file_exists(f_path):
+        raise Exception(f"{f_path} not found!")
 
-def check_path_exists(folder_path: Path):
-    if isinstance(folder_path, str):
-        folder_path = Path(folder_path)
-    return folder_path.exists()
+def check_path_exists(fldr_path: Path | str) -> bool:
+    return pathfy(fldr_path).exists()
 
-def check_path_exists_exception(folder_path: Path):
-    if isinstance(folder_path, str): folder_path = Path(folder_path)
-    if not folder_path.exists():
-        raise Exception(f"{folder_path} not found!")
+def check_path_exists_exception(fldr_path: Path) -> None:
+    if not check_path_exists(fldr_path):
+        raise Exception(f"{fldr_path} not found!")
+
+def explore_fldr(root_path, file_name):
+    """Find file_name down the hierarchy of root_path"""
+    rundir_folders = []
+    for dirpath, _, filenames in os.walk(root_path):
+        if file_name in filenames:
+            rundir_folders.append(dirpath)
+    return rundir_folders
+
+def explore_fldr_wildcard(root_path, file_name_wildcard):
+    ret = []
+    for dirpath, _, fnames in os.walk(root_path):
+        if any(fnmatch.fnmatch(fname, file_name_wildcard) for fname in fnames):
+            ret.append(os.path.abspath(dirpath))
+    return ret
 
 # ========================CREATE DIRS===========================================
-def create_dir(folder_path: Path, overwrite: bool = False):
-    if isinstance(folder_path, str): folder_path = Path(folder_path)    
-    if folder_path.exists() and overwrite: 
-        shutil.rmtree(folder_path)
-    if (not folder_path.exists()) or overwrite:
-        folder_path.mkdir(parents=True, exist_ok=True)
+def create_dir(fldr_path: Path, overwrite: bool = False):
+    fldr_path = pathfy(fldr_path)
+    if fldr_path.exists() and overwrite:
+        MyLogger.warning("existing directory:", str(fldr_path))
+    if not fldr_path.exists():
+        fldr_path.mkdir(parents=True, exist_ok=True)
+        MyLogger.success(f"Dir {fldr_path} created.")
     else:
-        raise Exception("Creating an already existing dir!")
+        raise Exception(f"create_dir {fldr_path} already existing!")
 
 # ========================COPY FILES============================================
-def copy_folder(reference_folder: Path, 
-                destination_folder: Path, 
-                force: bool, 
-                preserve_symlinks: bool = False):
-    if not reference_folder.exists():
-        raise FileNotFoundError(f"Reference folder '{reference_folder}' not found.")
-    
-    if not reference_folder.is_dir():
-        raise NotADirectoryError(f"'{reference_folder}' isn't a folder.")
+def copy_folder(ref_fldr: Path, dest_fldr: Path,
+                force: bool, keep_sym: bool = False):
 
-    if destination_folder.exists():
-        if not force:
-            raise FileExistsError(f"Destination folder '{destination_folder}' exists, use force.")
-    
-    shutil.copytree(reference_folder, destination_folder, 
-                    symlinks=preserve_symlinks, 
-                    dirs_exist_ok=True)
-    
-    print(f"Generated '{destination_folder}' from '{reference_folder}'.")
+    bad_symlinks_excp = False
+    _ = shutil.copytree(
+        src = ref_fldr, dst = dest_fldr, symlinks=keep_sym,
+        dirs_exist_ok=force, ignore_dangling_symlinks = bad_symlinks_excp
+    )
+    MyLogger.success(f"Generated '{dest_fldr}' from '{ref_fldr}'.")
 
-def copy_folder_content(ref_folder: Path,trg_folder: Path,
+def copy_folder_content(ref_folder: Path,dest_fldr: Path,
                         force: bool, preserve_symlinks: bool = False,
                         only_big_files: bool = True,
                         big_file_threshold: int = 2 * 1024 * 1024):
-    
-    if isinstance(ref_folder, str): ref_folder = Path(ref_folder)
-    if isinstance(trg_folder, str): trg_folder = Path(trg_folder)
-    
-    if not ref_folder.exists(): 
+    #TODO: Check usage of this
+    ref_folder = pathfy(ref_folder)
+    dest_fldr = pathfy(dest_fldr)
+
+    if not ref_folder.exists():
         raise Exception(f"Ref. folder '{ref_folder}' not found")
-    
-    trg_folder.mkdir(parents=True, exist_ok=True)
+
+    dest_fldr.mkdir(parents=True, exist_ok=True)
     for item in ref_folder.rglob('*'):
         rel_path = item.relative_to(ref_folder)
-        dest_path = trg_folder / rel_path
+        dest_path = dest_fldr / rel_path
 
         if item.is_dir():
             dest_path.mkdir(parents=True, exist_ok=True)
@@ -88,7 +95,7 @@ def copy_folder_content(ref_folder: Path,trg_folder: Path,
                 dest_path.symlink_to(link_target)
             else:
                 resolved = item.resolve()
-                shutil.copy2(resolved, dest_path)
+                _ = shutil.copy2(resolved, dest_path)
 
         elif item.is_file():
             if only_big_files and item.stat().st_size >= big_file_threshold:
@@ -96,17 +103,17 @@ def copy_folder_content(ref_folder: Path,trg_folder: Path,
                 relative_target = os.path.relpath(item.resolve(), start=dest_path.parent)
                 dest_path.symlink_to(relative_target)
             else:
-                shutil.copy2(item, dest_path)
+                _ = shutil.copy2(item, dest_path)
 
-def copy_file(source: Path, destination: Path):
-    if not source.is_file():
-        raise FileNotFoundError(f"Unable to find {source}")
+def copy_file(src: Path, dst: Path):
+    if not src.is_file():
+        raise FileNotFoundError(f"Unable to find {src}")
     try:
-        shutil.copy2(source, destination)
+        _ = shutil.copy2(src, dst)
     except PermissionError:
-        print(f"Bad permissions either for {source} or {destination}.")
+        print(f"Bad permissions either for {src} or {dst}.")
     except FileExistsError:
-        print(f"{destination} already exists")
+        print(f"{dst} already exists")
     except Exception as e:
         print(f"Error: {e}")
 

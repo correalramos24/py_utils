@@ -1,5 +1,5 @@
 import yaml
-from pathlib import Path
+from typing import Any
 
-def get_yaml_content(yaml_f : Path) -> dict:
-    return yaml.safe_load(yaml_f)
+def get_yaml_content(yaml_fd) -> dict[str, object]:
+    return yaml.safe_load(yaml_fd)

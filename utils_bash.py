@@ -1,58 +1,38 @@
+import os, re, subprocess
 from pathlib import Path
-import subprocess, os, re
-from .utils_print import *
-from .utils_py import *
+from textwrap import dedent
+from typing import Optional
 
-def expand_bash_env_vars(value:  str|list[str]) -> str|list[str]:
-    """Convert the bash variables ($VAR or ${VAR}) to the value.
-    """
-    if is_a_str(value) and "$" in value:
-        log("Expanding bash env var at", value)
-        return __expand_env_variables(value)
-    if is_a_list(value) and value[0] and "$" in ''.join(value):
-        log("Searching bash env vars at", stringfy(value))
-        return [__expand_env_variables(val) for val in value]
+# =============================BASH VARS======================================
 
-def __expand_env_variables(line: str) -> str:
-    pattern = r'\$(\w+)|\$\{(\w+)\}'
-    def replace_variable(match):
-        var_name = match.group(1) or match.group(2)
-        value = os.getenv(var_name)
-        if not value:
-            raise Exception("Unable to find env var", var_name)
-        else:
-            return value
+def expand_bash_env_vars(value:  str|list[str]) -> str|list[str] | None:
+    """Convert the bash variables ($VAR or ${VAR}) to the value."""
+    if isinstance(value, str):
+          return os.path.expandvars(value) if "$" in value else None
+    if isinstance(value, list) and any("$" in v for v in value):
+          return [os.path.expandvars(v) for v in value]
+    return None
 
-    # Substitute variables in the string with their values
-    return re.sub(pattern, replace_variable, line)
+# =============================BASH SCRIPTS====================================
+def generate_bash_script(f_path: Path, cmds: list[str]):
+    """Generate a bash script file with the given commands."""
+    script_content = dedent(f"""\
+        #!/bin/bash
+        # AUTOMATED BASH WRAPPER GENERATION:
 
-def generate_bash_script(f_path: Path, cmds : list[str]):
-    cmds_with_end_line = '\n'.join(cmds)
-    with open(f_path, mode="w") as bash_file:
-        bash_file.write(f"""#!/bin/bash
-# AUTOMATED BASH WRAPPER GENERATION:
-{cmds_with_end_line}
-""")
-        log(f"Created", f_path)
+        {'\n'.join(cmds)}
+    """)
+    f_path.write_text(script_content)
 
 def execute_script(script: str, args: str|None, rundir: Path, log_file=None) -> int:
-    if not args: 
-        args = ""
+    if not args: args = ""
+    if not rundir: rundir = os.getcwd()
 
-    if not rundir:
-        rundir = os.getcwd()
-
-    if log_file:
-        file_desc = open(log_file, mode="w")
-    else:
-        file_desc = None
-
-    r = subprocess.run(f"/bin/bash {script} {args}", cwd=rundir, 
+    file_desc = open(log_file, mode="w") if log_file else None
+    r = subprocess.run(f"/bin/bash {script} {args}", cwd=rundir,
             shell=True, text=True,
             stderr=subprocess.STDOUT, stdout=file_desc)
-
-    if log_file is not None:
-        file_desc.close()
+    if log_file is not None:file_desc.close()
 
     return r.returncode
 
@@ -60,13 +40,13 @@ def execute_command(cmd: str, rundir: Path):
     subprocess.run(f"{cmd}", cwd=rundir,
             shell=True, text=True,
            stderr=subprocess.STDOUT)
-    
 
-def execute_command_get_ouput(cmd: str, rundir: Path = None):
+
+def execute_command_get_ouput(cmd: str, rundir: Optional[Path] = None):
     try:
-        if not rundir: rundir = os.getcwd()
+        if not rundir: rundir = Path(os.getcwd())
         ret = subprocess.check_output(
-            cmd, cwd=rundir, 
+            cmd, cwd=rundir,
             stderr=subprocess.STDOUT,shell=True).strip().decode('utf-8')
         return ret
     except Exception as e:
