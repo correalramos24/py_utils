@@ -9,6 +9,7 @@ def is_list(var : object) -> bool: return isinstance(var, list)
 def is_str(var: object) -> bool: return isinstance(var, str)
 def is_path(var: object) -> bool: return isinstance(var, Path)
 def pathfy(var: str|Path) -> Path: return Path(var)
+def to_int_list(l: list[object]) -> list[int]: return list(map(int, l))
 # =============================PATH METHODS=====================================
 def path_to_str(p: Path) -> str: return str(p.name).replace("/", "-")
 def fpath_to_str(p: Path) -> str: return str(p).replace("/", "-")
