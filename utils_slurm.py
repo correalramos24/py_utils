@@ -1,7 +1,7 @@
 from .utils_print import *
 from pathlib import Path
 import subprocess, re, os
-from typing import Any
+from typing import Any, NamedTuple
 
 slurm_syntax = {
     "nodes" : "-N",
@@ -58,6 +58,25 @@ def execute_slurm_script(script, args, rundir, env=None):
     print("Submitting", submission_str)
     subprocess.run(submission_str, cwd=rundir,
             shell=True, text=True, stderr=subprocess.STDOUT)
+
+class SlurmEnv(NamedTuple):
+    nodes: int
+    mpi: int
+    omp: int
+    tasks: int
+
+def slurm_env(env_file: Path) -> SlurmEnv:
+    text = env_file.read_text()
+
+    def find(pattern: str) -> int:
+        return int(m.group(1)) if (m := re.search(pattern, text)) else -1
+
+    return SlurmEnv(
+        find(r"SLURM_NNODES=(\d+)"),
+        find(r"SLURM_TASKS_PER_NODE=(\d+)"),
+        find(r"SLURM_CPUS_PER_TASK=(\d+)"),
+        find(r"SLURM_NTASKS=(\d+)")
+    )
 
 def get_slurm_env(env_file: Path) -> tuple[int,int,int,int]:
     regex_num_nodes = re.compile(r'SLURM_NNODES=(\d+)')
