@@ -41,6 +41,8 @@ def execute_command(cmd: str, rundir: Path):
             shell=True, text=True,
            stderr=subprocess.STDOUT)
 
+def command_output(cmd: str, rundir: Optional[Path] = None):
+    return execute_command_get_ouput(cmd, rundir)
 
 def execute_command_get_ouput(cmd: str, rundir: Optional[Path] = None):
     try:
