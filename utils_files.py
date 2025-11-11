@@ -17,7 +17,7 @@ def check_file_exists_exception(f_path: Path):
 def check_path_exists(fldr_path: Path | str) -> bool:
     return pathfy(fldr_path).exists()
 
-def check_path_exists_exception(fldr_path: Path) -> None:
+def check_path_exists_exception(fldr_path: Path | str) -> None:
     if not check_path_exists(fldr_path):
         raise Exception(f"{fldr_path} not found!")
 
