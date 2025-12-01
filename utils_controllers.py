@@ -1,5 +1,5 @@
 from .utils_py import safe_return, is_list
-from .utils_print import MyLogger
+from .utils_print import MyLogger, LoggerLevels
 from .utils_files import create_dir, check_path_exists
 
 from typing import Callable, Any
@@ -24,6 +24,12 @@ class metaAbstractClass(ABC):
     def _err(cls, *msg): MyLogger.error(*msg)
     @classmethod
     def _critical(cls, *msg): MyLogger.critical(*msg)
+    @classmethod
+    def _disable_verbose(cls): MyLogger.set_verbose_level(LoggerLevels.NO)
+    @classmethod
+    def _enable_verbose(cls): MyLogger.set_verbose_level(LoggerLevels.VERBOSE)
+
+
 
 # ================================BACKEND=======================================
 class AbstractPersistance(metaAbstractClass):
@@ -109,7 +115,7 @@ class AbstractDomain(metaAbstractClass):
         self._ok("DONE!")
 
     @abstractmethod
-    def init_database(self, db_root=None) -> AbstractPersistance:
+    def init_database(self, db_root) -> AbstractPersistance:
         pass
 
     @abstractmethod
