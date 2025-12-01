@@ -1,6 +1,6 @@
-from .utils_py import safe_return, is_list
-from .utils_print import MyLogger
-from .utils_files import create_dir, check_path_exists
+
+from logger import MyLogger
+from utils_files import create_dir, check_path_exists
 
 from typing import Callable, Any
 from abc import ABC, abstractmethod
@@ -8,8 +8,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 import pickle as pkl
 
-class metaAbstractClass(ABC):
-    def className(self) -> str: return self.__class__.__name__
+class MetaAbstractClass(ABC):
+    def classname(self) -> str: return self.__class__.__name__
     @classmethod
     def _info(cls, *msg): MyLogger.info(*msg)
     @classmethod
@@ -26,7 +26,7 @@ class metaAbstractClass(ABC):
     def _critical(cls, *msg): MyLogger.critical(*msg)
 
 # ================================BACKEND=======================================
-class AbstractPersistance(metaAbstractClass):
+class AbstractPersistance(MetaAbstractClass):
     def __init__(self, root_path: Path):
         self.root : Path = root_path
         self.meta : Path = Path(self.root, "meta.data")
@@ -65,7 +65,7 @@ class AbstractPersistance(metaAbstractClass):
             pkl.dump(self.entities, md_file)
 
 # ================================FRONTEND======================================
-class AbstractFrontend(metaAbstractClass):
+class AbstractFrontend(MetaAbstractClass):
     @abstractmethod
     def loop(self):
         pass
@@ -101,7 +101,7 @@ class AbstractCLI(AbstractFrontend):
         except (ValueError, KeyboardInterrupt):
             return 0
 
-class AbstractDomain(metaAbstractClass):
+class AbstractDomain(MetaAbstractClass):
     def __init__(self, db_root : Path):
         self._info("Initializing domain...")
         self.instances : dict[str, Any] = dict()
@@ -114,7 +114,7 @@ class AbstractDomain(metaAbstractClass):
 
     @abstractmethod
     def _create_new_instance(self):
-        "Create an empty domain instance"
+        """Create an empty domain instance"""
         pass
 
     def get_avail_instances(self) -> list[str]:

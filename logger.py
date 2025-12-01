@@ -15,13 +15,13 @@ class MyLogger:
     verbose_level: LoggerLevels = LoggerLevels.INFO
 
     _LEVELS = {
-        "INFO":    {"level": LoggerLevels.INFO,    "color": None},
-        "LOG":     {"level": LoggerLevels.LOG,     "color": "cyan"},
-        "DEBUG":   {"level": LoggerLevels.DEBUG,   "color": "blue"},
-        "SUCCESS": {"level": LoggerLevels.INFO,    "color": "green"},
-        "WARNING": {"level": LoggerLevels.INFO,    "color": "yellow"},
-        "ERROR":   {"level": LoggerLevels.INFO,    "color": "red"},
-        "CRITICAL":{"level": LoggerLevels.INFO,    "color": "red"},
+        "INFO":    {"level": LoggerLevels.INFO,  "color": None},
+        "LOG":     {"level": LoggerLevels.LOG,   "color": "cyan"},
+        "DEBUG":   {"level": LoggerLevels.DEBUG, "color": "blue"},
+        "SUCCESS": {"level": LoggerLevels.INFO,  "color": "green"},
+        "WARNING": {"level": LoggerLevels.INFO,  "color": "yellow"},
+        "ERROR":   {"level": LoggerLevels.INFO,  "color": "red"},
+        "CRITICAL":{"level": LoggerLevels.INFO,  "color": "red"},
     }
     _LJ_CHARS = 9
     _ALWAYS_PRINT = ("SUCCESS","WARNING","ERROR","CRITICAL")

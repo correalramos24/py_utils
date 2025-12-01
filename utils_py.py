@@ -1,4 +1,4 @@
-from .utils_print import MyLogger
+from logger import MyLogger
 
 from typing import Iterable, Callable
 from pathlib import Path
@@ -9,7 +9,7 @@ def is_list(var : object) -> bool: return isinstance(var, list)
 def is_str(var: object) -> bool: return isinstance(var, str)
 def is_path(var: object) -> bool: return isinstance(var, Path)
 def pathfy(var: str|Path) -> Path: return Path(var)
-def to_int_list(l: list[object]) -> list[int]: return list(map(int, l))
+def to_int_list(l: Iterable) -> list[int]: return list(map(int, l))
 # =============================PATH METHODS=====================================
 def path_to_str(p: Path) -> str: return str(p.name).replace("/", "-")
 def fpath_to_str(p: Path) -> str: return str(p).replace("/", "-")
@@ -17,7 +17,7 @@ def fpath_to_str(p: Path) -> str: return str(p).replace("/", "-")
 def stringfy(var : Path | object | list[object] | object ) -> str:
     """Convert var to string, according to the type"""
     if isinstance(var, Path): return path_to_str(var)
-    elif isinstance(var, list): return ','.join(str(e) for e in var)
+    elif is_list(var): return ','.join(str(e) for e in var)
     else: return str(var)
 
 def search_char_in_str(s: str, char: str = "&") -> list[int]:
