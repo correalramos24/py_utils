@@ -1,10 +1,19 @@
+"""
+Logger implementation with several details of
+verbosity and control the errors/warnings of an
+execution.
+"""
+
 from enum import IntEnum
 try:
     from termcolor import colored
 except ImportError:
-    colored = lambda x, y: x
+    def colored(x, _):
+        """Placeholder for colored output."""
+        return x
 
 class LoggerLevels(IntEnum):
+    """Definition for the verbosity levels of logger."""
     NO      = 0
     INFO    = 1
     LOG     = 2
@@ -12,6 +21,7 @@ class LoggerLevels(IntEnum):
     VERBOSE = 4
 
 class MyLogger:
+    """Logger with several details of verbosity."""
     verbose_level: LoggerLevels = LoggerLevels.INFO
 
     _LEVELS = {
@@ -27,6 +37,7 @@ class MyLogger:
     _ALWAYS_PRINT = ("SUCCESS","WARNING","ERROR","CRITICAL")
     @classmethod
     def set_verbose_level(cls, level: LoggerLevels):
+        """Set the verbosity level of the logger."""
         if level not in LoggerLevels:
             raise ValueError(f"Invalid log level: {level}")
         cls.verbose_level = level
@@ -41,16 +52,30 @@ class MyLogger:
             print(colored(text, info["color"]) if info["color"] else text)
 
     @classmethod
-    def info(cls, *args: str): cls._log("INFO", *args)
+    def info(cls, *args: str):
+        """Log an info message."""
+        cls._log("INFO", *args)
     @classmethod
-    def log(cls, *args: str): cls._log("LOG", *args)
+    def log(cls, *args: str):
+        """Log an info message."""
+        cls._log("LOG", *args)
     @classmethod
-    def debug(cls, *args: str): cls._log("DEBUG", *args)
+    def debug(cls, *args: str):
+        """Log a debug message."""
+        cls._log("DEBUG", *args)
     @classmethod
-    def success(cls, *args: str): cls._log("SUCCESS", *args)
+    def success(cls, *args: str):
+        """Log a success message."""
+        cls._log("SUCCESS", *args)
     @classmethod
-    def warning(cls, *args: str): cls._log("WARNING", *args)
+    def warning(cls, *args: str):
+        """Log a warning message."""
+        cls._log("WARNING", *args)
     @classmethod
-    def error(cls, *args: str): cls._log("ERROR", *args)
+    def error(cls, *args: str):
+        """Log an error message."""
+        cls._log("ERROR", *args)
     @classmethod
-    def critical(cls, *args: str): cls._log("CRITICAL", *args)
+    def critical(cls, *args: str):
+        """Log a critical message."""
+        cls._log("CRITICAL", *args)
