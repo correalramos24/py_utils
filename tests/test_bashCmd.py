@@ -1,8 +1,7 @@
-from bashScript import *
-from logger import *
+from utils.bashScript import *
+from utils.logger import *
 
 from pathlib import Path
-
 from unittest import TestCase
 
 class TestBashCmd(TestCase):
@@ -10,6 +9,15 @@ class TestBashCmd(TestCase):
         self.p = Path(__file__).parent
         print("Executing tests at", self.p)
         MyLogger.set_verbose_level(LoggerLevels.VERBOSE)
+
+    def tearDown(self):
+        print("Removing files generated...")
+        for pattern in ["*.sh", "*.log"]:
+            for file in self.p.glob(pattern):
+                try:
+                    file.unlink()
+                except Exception as e:
+                    print(f"Error removing {file}: {e}")
 
     def test_err_bash_cmd(self):
         r = BashCmd(rundir=self.p).run("alfa -hs")

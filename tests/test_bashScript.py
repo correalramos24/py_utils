@@ -1,9 +1,8 @@
-from bashScript import *
-from logger import *
-from utils_files import *
+from utils.bashScript import *
+from utils.logger import *
+from utils.utils_files import *
 
 from pathlib import Path
-import os, glob
 
 from unittest import TestCase
 
@@ -15,10 +14,10 @@ class TestBashScript(TestCase):
 
     def tearDown(self):
         print("Removing files generated...")
-        for p in ["*.sh", "*.log"]:
-            for file in glob.glob(p):
+        for pattern in ["*.sh", "*.log"]:
+            for file in self.p.glob(pattern):
                 try:
-                    os.remove(file)
+                    file.unlink()
                     print(f"Removed {file}")
                 except Exception as e:
                     print(f"Error removing {file}: {e}")

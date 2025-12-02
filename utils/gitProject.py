@@ -1,5 +1,5 @@
 
-from bashScript import BashCmd
+from .bashScript import BashCmd
 
 from pathlib import Path
 
@@ -18,7 +18,9 @@ class GitProject:
 
     @property
     def git_tag(self) -> str:
-        return self.bManager.run("git describe --tags --abbrev=0").output()
+        r = self.bManager.run("git describe --tags --abbrev=0")
+        if r.ret_code() != 0: return "NO TAG"
+        else: return r.output()
 
     def __str__(self):
         return f"GIT> {self.git_commit} @ {self.git_branch} ({self.git_tag})"

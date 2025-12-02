@@ -1,4 +1,4 @@
-from logger import MyLogger
+from utils.logger import MyLogger
 
 from typing import Iterable, Callable
 from pathlib import Path

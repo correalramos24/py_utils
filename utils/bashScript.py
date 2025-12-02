@@ -1,8 +1,8 @@
 from io import TextIOWrapper
 
-from utils_py import listify, stringfy
-from utils_files import *
-from bashCMD import BashCmd
+from .utils_py import listify, stringfy
+from .utils_files import *
+from .bashCMD import BashCmd
 
 import stat
 from pathlib import Path

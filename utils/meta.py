@@ -1,5 +1,6 @@
 
-from logger import MyLogger
+from .logger import MyLogger
+
 from abc import ABC, abstractmethod
 
 

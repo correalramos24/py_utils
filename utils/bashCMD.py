@@ -1,5 +1,5 @@
 
-from meta import MetaAbstractClass
+from .meta import MetaAbstractClass
 
 import os, subprocess
 from pathlib import Path

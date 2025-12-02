@@ -1,6 +1,5 @@
-from .logger import *
 from pathlib import Path
-import subprocess, re, os
+import subprocess, re
 from typing import Any, NamedTuple
 
 slurm_syntax = {
