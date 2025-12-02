@@ -1,5 +1,5 @@
 
-from utils_git import *
+from gitProject import *
 
 from unittest import TestCase
 
