@@ -1,6 +1,6 @@
-
 from logger import MyLogger
 from utils_files import create_dir, check_path_exists
+from meta import MetaAbstractClass
 
 from typing import Callable, Any
 from abc import ABC, abstractmethod
@@ -8,22 +8,6 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 import pickle as pkl
 
-class MetaAbstractClass(ABC):
-    def classname(self) -> str: return self.__class__.__name__
-    @classmethod
-    def _info(cls, *msg): MyLogger.info(*msg)
-    @classmethod
-    def _log(cls, *msg): MyLogger.log(*msg)
-    @classmethod
-    def _dbg(cls, *msg): MyLogger.debug(*msg)
-    @classmethod
-    def _ok(cls, *msg): MyLogger.success(*msg)
-    @classmethod
-    def _warn(cls, *msg): MyLogger.warning(*msg)
-    @classmethod
-    def _err(cls, *msg): MyLogger.error(*msg)
-    @classmethod
-    def _critical(cls, *msg): MyLogger.critical(*msg)
 
 # ================================BACKEND=======================================
 class AbstractPersistance(MetaAbstractClass):

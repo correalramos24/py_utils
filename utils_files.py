@@ -6,6 +6,10 @@ from typing import Callable
 from pathlib import Path
 import os, shutil, fnmatch
 
+class ExpectFile(Exception):
+    def __init__(self, path: Path):
+        self.path = path
+        super().__init__(f"Path {self.path} can't be a folder")
 # ========================CHECK PRESENCE========================================
 def file_exists(f_path: Path | str) -> bool:
     return pathfy(f_path).is_file()
