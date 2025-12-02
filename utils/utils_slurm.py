@@ -77,14 +77,13 @@ def slurm_env(env_file: Path) -> SlurmEnv:
         find(r"SLURM_NTASKS=(\d+)")
     )
 
-def get_slurm_env(env_file: Path) -> tuple[int,int,int,int]:
-    regex_num_nodes = re.compile(r'SLURM_NNODES=(\d+)')
-    regex_mpi_per_node = re.compile(r'SLURM_TASKS_PER_NODE=(\d+)')
-    regex_tasks        = re.compile(r'SLURM_NTASKS=(\d+)')
-    regex_omp_per_node = re.compile(r'SLURM_CPUS_PER_TASK=(\d+)')
-
-    nodes, mpi, omp, tasks = -1,-1,-1,-1
+def get_slurm_env(env_file: Path) -> tuple[int,int,int,int]|None:
+    nodes, mpi, omp, tasks = -1, -1, -1, -1
     try:
+        regex_num_nodes = re.compile(r'SLURM_NNODES=(\d+)')
+        regex_mpi_per_node = re.compile(r'SLURM_TASKS_PER_NODE=(\d+)')
+        regex_tasks = re.compile(r'SLURM_NTASKS=(\d+)')
+        regex_omp_per_node = re.compile(r'SLURM_CPUS_PER_TASK=(\d+)')
         with open(env_file) as slurm_env_file:
             for line in slurm_env_file.readlines():
                 match_nodes = regex_num_nodes.search(line)

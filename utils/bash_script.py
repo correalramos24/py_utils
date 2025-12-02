@@ -1,13 +1,11 @@
-from io import TextIOWrapper
-
-from .utils_py import listify, stringfy
-from .utils_files import *
-from .bashCMD import BashCmd
 
 import stat
 from pathlib import Path
 from typing import Optional, List
 
+from .utils_py import listify, stringfy
+from .utils_files import ExpectFile, check_file_exists_exception
+from .bash_cmd import BashCmd
 
 class BashScript(BashCmd):
     BEGIN_SCRIPT = "AUTOMATED BASH WRAPPER GENERATION:"
@@ -19,8 +17,7 @@ class BashScript(BashCmd):
         # Checks script file:
         if self.s.exists() and self.s.is_dir():
             raise ExpectFile(self.s)
-        else:
-            self._warn("Overwriting existing script @", self.s)
+        self._warn("Overwriting existing script @", self.s)
 
         # Checks template script file:
         if self.__tmp_s:
@@ -31,9 +28,12 @@ class BashScript(BashCmd):
         super().__init__(self.s.parent)
 
     def dry(self):
-        if self.__tmp_s and self.__cmds: self._warn("Template & cmds provided!")
-        if self.__tmp_s:  self.__copy_template()
-        elif self.__cmds: self.__generate_script()
+        if self.__tmp_s and self.__cmds:
+            self._warn("Template & cmds provided!")
+        if self.__tmp_s:
+            self.__copy_template()
+        elif self.__cmds:
+            self.__generate_script()
 
     def __copy_template(self) -> None:
         pass
@@ -53,12 +53,8 @@ class BashScript(BashCmd):
         self._dbg(f"BashScript {self.s} w/ cmd(s): {stringfy(cmds)}")
         return self
 
-    def run(self, *args, **kwargs) -> "BashScript":
+    def run(self, cmd=None) -> "BashScript":
         self.dry()
         self._info("Running script: ", self.s)
         super().run("./" + str(self.s.name))
         return self
-
-
-
-

@@ -1,8 +1,8 @@
 
-from utils.gitProject import *
-
 from unittest import TestCase
+from pathlib import Path
 
+from utils.git_project import GitProject
 
 class TestGitProject(TestCase):
     test_rundir = Path(__file__).parent

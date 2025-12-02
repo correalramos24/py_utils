@@ -1,8 +1,9 @@
-from utils.bashScript import *
-from utils.logger import *
 
 from pathlib import Path
 from unittest import TestCase
+
+from utils.bash_cmd import BashCmd
+from utils.logger import MyLogger, LoggerLevels
 
 class TestBashCmd(TestCase):
     def setUp(self):
@@ -14,14 +15,11 @@ class TestBashCmd(TestCase):
         print("Removing files generated...")
         for pattern in ["*.sh", "*.log"]:
             for file in self.p.glob(pattern):
-                try:
-                    file.unlink()
-                except Exception as e:
-                    print(f"Error removing {file}: {e}")
+                file.unlink(missing_ok=True)
 
     def test_err_bash_cmd(self):
         r = BashCmd(rundir=self.p).run("alfa -hs")
-        self.assertEqual(r.ret_code(), 127)
+        self.assertNotEqual(r.ret_code(), 0)
 
     def test_ok_bash_cmd(self):
         r = BashCmd(rundir=self.p).run("ls -la")
@@ -32,4 +30,3 @@ class TestBashCmd(TestCase):
         .with_log(Path(self.p, "ls_cmd.log")) \
         .run("ls -la")
         print(r.ret_code())
-

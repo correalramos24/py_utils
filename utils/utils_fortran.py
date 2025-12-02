@@ -1,5 +1,7 @@
-import f90nml
+
 from pathlib import Path
+
+import f90nml
 
 def update_f90nml_key_value(nml_path: Path, nml_name: str, key: str, value: str):
     nml = f90nml.read(nml_path)
@@ -26,9 +28,8 @@ def get_f90nml_key_value(nml_path: Path, nml_name: str, key: str):
 
 
 def add_f90nml(nml_path: Path, nml_name: str, payload: dict):
-
     nml = f90nml.read(nml_path)
-    
+
     if nml_name not in nml:
         nml[nml_name] = {}
 

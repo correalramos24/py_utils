@@ -1,10 +1,11 @@
-from utils.bashScript import *
-from utils.logger import *
-from utils.utils_files import *
-
-from pathlib import Path
 
 from unittest import TestCase
+from pathlib import Path
+
+from utils.bash_script import BashScript
+from utils.logger import LoggerLevels, MyLogger
+from utils.utils_files import ExpectFile, file_exists
+
 
 class TestBashScript(TestCase):
     def setUp(self):
@@ -16,11 +17,8 @@ class TestBashScript(TestCase):
         print("Removing files generated...")
         for pattern in ["*.sh", "*.log"]:
             for file in self.p.glob(pattern):
-                try:
-                    file.unlink()
-                    print(f"Removed {file}")
-                except Exception as e:
-                    print(f"Error removing {file}: {e}")
+                file.unlink(missing_ok=True)
+
 
     def test_generate_dry_script(self):
         b_dir = Path(self.p, "test_dry.sh")
@@ -35,7 +33,8 @@ class TestBashScript(TestCase):
 
     def test_run(self):
         b_dir = Path(self.p, "test_run.sh")
-        rc = BashScript(b_dir).with_cmds(["ls -la", "echo \"Disk usage:\"",  "du -hs"]).run().ret_code()
+        rc = (BashScript(b_dir).with_cmds(["ls -la", "echo \"Disk usage:\"",  "du -hs"]).
+              run().ret_code())
         self.assertEqual(rc, 0)
 
     def test_run_with_log(self):
