@@ -17,5 +17,4 @@ have something self-build :).
 
 ## Testing
 
-TBD
-
+Unit testing using **unittest** is defined at the tests package

@@ -1,10 +1,9 @@
 from bashScript import *
 from logger import *
-import os
+
 from pathlib import Path
 
 from unittest import TestCase
-
 
 class TestBashCmd(TestCase):
     def setUp(self):
