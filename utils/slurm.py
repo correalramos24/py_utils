@@ -10,7 +10,8 @@ from .bash_script import BashScript
 @dataclass
 class SlurmDirectives:
     nodes    : int  = opt_field(metadata={"syntax": "-N", "env": 'SLURM_NNODES'})
-    mpi      : int  = opt_field(metadata={"syntax": "--ntasks-per-node", "env": 'SLURM_TASKS_PER_NODE'})
+    mpi      : int  = opt_field(metadata={"syntax": "--ntasks-per-node",
+                                          "env": 'SLURM_TASKS_PER_NODE'})
     tasks    : int  = opt_field(metadata={"syntax": "--ntasks", "env" : 'SLURM_NTASKS'})
     omp      : int  = opt_field(metadata={"syntax": "-c", "env": 'SLURM_CPUS_PER_TASK'})
     account  : str  = opt_field(metadata={"syntax": "-A", "env": 'SLURM_JOB_ACCOUNT'})
@@ -19,7 +20,8 @@ class SlurmDirectives:
     job_name : str  = opt_field(metadata={"syntax": "--job-name", "env": "SLURM_JOB_NAME"})
     workdir  : str  = opt_field(metadata={"syntax": "-D", "env": 'SLURM_SUBMIT_DIR'})
 
-    exclusive   : bool = field(default=True, metadata={"syntax": "--exclusive", "env": "SBATCH_EXCLUSIVE"})
+    exclusive   : bool = field(default=True, metadata={"syntax": "--exclusive",
+                                                       "env": "SBATCH_EXCLUSIVE"})
     wait        : bool = field(default=False, metadata={"syntax": "-W", "env": "SBATCH_WAIT"})
     contiguous  : bool = field(default=False, metadata={"syntax": "--contiguous"})
     perfparanoid: bool = field(default=False, metadata={"syntax": "-C perfparanoid"})
@@ -28,7 +30,7 @@ class SlurmDirectives:
     def from_env_file(cls, env_file: Path) -> "SlurmDirectives":
         kwargs={}
         try:
-            with open(env_file) as f:
+            with open(env_file, encoding='utf-8') as f:
                 lines = [l for l in f.readlines() if "SLURM_" in l or "SBATCH_" in l]
 
             env_vals = {k: v.strip() for l in lines if "=" in l for k, v in [l.split("=", 1)]}
@@ -37,7 +39,7 @@ class SlurmDirectives:
                 env = f_field.metadata.get("env")
                 if env and env in env_vals:
                     kwargs[f_field.name] = env_vals[env]
-        except Exception as e:
+        except OSError as e:
             print("While parsing", env_file, ":", e)
 
         return cls(**kwargs)
@@ -99,10 +101,10 @@ class SlurmScript(BashScript):
         self._ok("Generated slurm script @", self.s)
 
     def __env_fmt(self) -> str:
-        if self.slurm_env is None: return ""
+        if self.slurm_env is None:
+            return ""
         return f"--export ALL,{self.slurm_env}"
 
     def run(self, cmd=None):
         self._info(f"Submitting SLURM script {self.s}")
         super().run("sbatch --parsable " + self.__env_fmt() + str(self.s.name))
-
