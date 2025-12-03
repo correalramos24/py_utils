@@ -1,8 +1,7 @@
 
-import functools, os
+import os
 from typing import Iterable, Callable
 from pathlib import Path
-from utils.logger import MyLogger
 
 # =============================CHECK TYPES======================================
 def is_list(var : object) -> bool:
@@ -75,24 +74,4 @@ def expand_bash_env_vars(value:  str|list[str]) -> str|list[str] | None:
         return [os.path.expandvars(v) for v in value]
     return None
 # ==============================DECORATORS=====================================
-def check_exceptions(func: Callable[[object], object]):
-    @functools.wraps(func)
-    def wrapper(*args: tuple[object], **kwargs: dict[str, object]):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e: # pylint: disable=broad-except
-            MyLogger.error(str(e))
-            return None
-    return wrapper
 
-def safe_return(default: object):
-    def decorator(func: Callable[[object], object]):
-        @functools.wraps(func)
-        def wrapper(*args: tuple[object], **kwargs: dict[str, object]):
-            try:
-                return func(*args, **kwargs)
-            except Exception as e: # pylint: disable=broad-except
-                MyLogger.error(str(e))
-                return default
-        return wrapper
-    return decorator
