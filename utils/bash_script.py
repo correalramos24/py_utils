@@ -33,22 +33,25 @@ class BashScript(BashCmd):
         if self.__tmp_s:
             self.__copy_template()
         elif self.__cmds:
-            self.__generate_script()
+            self._generate_script()
 
     def __copy_template(self) -> None:
-        pass
+        raise NotImplementedError()
 
-    def __generate_script(self) -> None:
+    def _generate_script(self) -> None:
         """Generate a bash script file with the given commands."""
         content = "\n".join(["#!/bin/bash",
                              f"# {self.BEGIN_SCRIPT}", "",
-                             '\n'.join([c.lstrip() for c in self.__cmds]),
+                             self._cmds_str(),
                              "",f"# {self.TRAILER_SCRIPT}"])
         self.s.write_text(content)
         self.s.chmod(self.s.stat().st_mode | stat.S_IXUSR) # ADD EXEC RIGHTS
         self._ok("Generated bash script @", self.s)
 
-    def with_cmds(self, cmds : List[str]) -> "BashScript":
+    def _cmds_str(self) -> str:
+        return '\n'.join([c.lstrip() for c in self.__cmds])
+
+    def with_cmds(self, cmds : List[str]|str) -> "BashScript":
         self.__cmds = listify(cmds)
         self._dbg(f"BashScript {self.s} w/ cmd(s): {stringfy(cmds)}")
         return self
@@ -56,5 +59,8 @@ class BashScript(BashCmd):
     def run(self, cmd=None) -> "BashScript":
         self.dry()
         self._info("Running script: ", self.s)
-        super().run("./" + str(self.s.name))
+        if cmd:
+            super().run(cmd)
+        else:
+            super().run("./" + str(self.s.name))
         return self

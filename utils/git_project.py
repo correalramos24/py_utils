@@ -25,4 +25,4 @@ class GitProject:
         return r.output()
 
     def __str__(self):
-        return f"GIT> {self.git_commit} @ {self.git_branch} ({self.git_tag})"
+        return f"GIT> {self.git_commit()} @ {self.git_branch()} ({self.git_tag()})"
