@@ -1,19 +1,12 @@
-"""
-Logger implementation with several details of
-verbosity and control the errors/warnings of an
-execution.
-"""
 
 from enum import IntEnum
 try:
     from termcolor import colored
 except ImportError:
     def colored(x, _):
-        """Placeholder for colored output."""
         return x
 
 class LoggerLevels(IntEnum):
-    """Definition for the verbosity levels of logger."""
     NO      = 0
     INFO    = 1
     LOG     = 2
@@ -21,7 +14,6 @@ class LoggerLevels(IntEnum):
     VERBOSE = 4
 
 class MyLogger:
-    """Logger with several details of verbosity."""
     verbose_level: LoggerLevels = LoggerLevels.INFO
 
     _LEVELS = {
