@@ -38,6 +38,8 @@ class BashCmd(MetaAbstractClass):
                 with open(self._log_file, "w", encoding="utf-8") as fd:
                     r = subprocess.run(full_cmd, cwd=self.p, check=False,
                                        text=True,stdout=fd, stderr=err_trg)
+                    self._output = r.stdout.strip() if r.stdout else ""
+                    self._cmplt_run = r
             else:
                 r = subprocess.run(full_cmd, cwd=self.p, check=False,
                                    text=True, stdout=out_trg, stderr=err_trg)

@@ -3,6 +3,8 @@ from unittest import TestCase
 from pathlib import Path
 from dataclasses import dataclass, Field
 from typing import List
+import shutil
+
 from utils.x_domain import GenericObject, GenericDomain
 from utils.logger import MyLogger, LoggerLevels
 
@@ -25,11 +27,15 @@ class Nota(GenericObject):
 class TestGenericDomain(TestCase):
 
     def setUp(self):
-        self.db_root = Path(__file__).parent
+        self.db_root = Path(__file__).parent / "nota"
         MyLogger.set_verbose_level(LoggerLevels.DEBUG)
 
+    def tearDown(self):
+        print("Removing files generated...")
+        shutil.rmtree(self.db_root)
+
     def test_simple(self):
-        nota_domain = GenericDomain(self.db_root / "nota", Nota)
+        nota_domain = GenericDomain(self.db_root, Nota)
 
         nota = nota_domain.create(title="Example", content="whatever", tags=["TAG1", "33"])
         print(nota)
