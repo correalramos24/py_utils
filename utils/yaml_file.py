@@ -7,7 +7,6 @@ from .utils_files import check_file_exists_exception
 
 
 class YAMLObject:
-    
     def __init__(self, content: dict[str, Any]):
         self.content = self.parse_from_content(content)
 
