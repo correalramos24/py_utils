@@ -3,12 +3,13 @@ from abc import abstractmethod, ABC
 from dataclasses import dataclass, fields
 from pathlib import Path
 import hashlib
-from typing import Any, Hashable, Type, TypeVar
+from typing import Hashable, Type, TypeVar
 
 from .x_persistance import GenericPersistance
 from .meta import MetaAbstractClass
 
 T = TypeVar("T", bound="GenericObject")
+
 
 @dataclass
 class GenericObject(Hashable, ABC):
@@ -47,7 +48,5 @@ class GenericDomain(MetaAbstractClass):
         else:
             self._err(f"Trying to update non-bound identifier {identifier}")
 
-
     def delete(self, identifier: Hashable):
         self.persistance.remove(identifier)
-

@@ -1,12 +1,13 @@
 
 from unittest import TestCase
 from pathlib import Path
-from dataclasses import dataclass, Field
+from dataclasses import dataclass
 from typing import List
 import shutil
 
 from utils.x_domain import GenericObject, GenericDomain
 from utils.logger import MyLogger, LoggerLevels
+
 
 @dataclass
 class Nota(GenericObject):
@@ -37,7 +38,9 @@ class TestGenericDomain(TestCase):
     def test_simple(self):
         nota_domain = GenericDomain(self.db_root, Nota)
 
-        nota = nota_domain.create(title="Example", content="whatever", tags=["TAG1", "33"])
+        nota = nota_domain.create(title="Example",
+                                  content="whatever",
+                                  tags=["TAG1", "33"])
         print(nota)
 
         id_hash = hash(nota)
@@ -48,4 +51,3 @@ class TestGenericDomain(TestCase):
 
         nota_domain.delete(id_hash)
         print(nota_domain.read(id_hash))
-

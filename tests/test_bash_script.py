@@ -19,7 +19,6 @@ class TestBashScript(TestCase):
             for file in self.p.glob(pattern):
                 file.unlink(missing_ok=True)
 
-
     def test_generate_dry_script(self):
         b_dir = Path(self.p, "test_dry.sh")
         a = BashScript(b_dir).with_cmds(["ls -la", "du -hs"])
@@ -33,19 +32,32 @@ class TestBashScript(TestCase):
 
     def test_run(self):
         b_dir = Path(self.p, "test_run.sh")
-        rc = (BashScript(b_dir).with_cmds(["ls -la", "echo \"Disk usage:\"",  "du -hs"]).
-              run().ret_code())
+        rc = (
+            BashScript(b_dir)
+            .with_cmds(["ls -la", "echo \"Disk usage:\"", "du -hs"])
+            .run()
+            .ret_code()
+        )
         self.assertEqual(rc, 0)
 
     def test_run_with_log(self):
         b_dir = Path(self.p, "test_run_with_log.sh")
-        rc = (BashScript(b_dir).with_cmds(["ls -la", "echo \"Disk usage:\"",  "du -hs"])
-              .with_log(Path(self.p, "l.log")).run().ret_code())
+        rc = (
+            BashScript(b_dir)
+            .with_cmds(["ls -la", "echo \"Disk usage:\"", "du -hs"])
+            .with_log(Path(self.p, "l.log"))
+            .run()
+            .ret_code()
+        )
         self.assertEqual(rc, 0)
         self.assertTrue(file_exists(Path(self.p, "test_run_with_log.sh")))
 
     def test_run_gather_output(self):
         b_dir = Path(self.p, "test_run_with_output.sh")
-        ret = (BashScript(b_dir).with_cmds(["du -hs"])
-              .run().output())
+        ret = (
+            BashScript(b_dir)
+            .with_cmds(["du -hs"])
+            .run()
+            .output()
+        )
         print("output:", ret)

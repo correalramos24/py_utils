@@ -17,7 +17,6 @@ class TestYAMLFile(TestCase):
         f = YAMLObject(yaml_file.content)
         print(f)
 
-
     def test_minimal(self):
         f = YAMLFile(self.p / "test.yaml")
         print(f)

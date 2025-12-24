@@ -5,9 +5,9 @@ from typing import Any
 
 from .utils_files import check_file_exists_exception
 
-#TODO: WIP!
 
 class YAMLObject:
+    
     def __init__(self, content: dict[str, Any]):
         self.content = self.parse_from_content(content)
 
@@ -26,9 +26,9 @@ class YAMLObject:
         for k, v in self.content.items():
             if isinstance(v, YAMLObject):
                 ret += k + " :\n"
-                ret+=YAMLObject.__str__(v)+"\n"
+                ret += YAMLObject.__str__(v)+"\n"
             else:
-                ret+=str(k) + "->" + str(v) + "\n"
+                ret += str(k) + "->" + str(v) + "\n"
 
         return ret
 
@@ -44,6 +44,7 @@ class YAMLFile:
         for k, v in self.content.items():
             ret += f"{k}: {v}\n"
         return ret
+
 
 def get_yaml_content(yaml_fd) -> dict[str, object]:
     return yaml.safe_load(yaml_fd)

@@ -5,6 +5,7 @@ from unittest import TestCase
 from utils.bash_cmd import BashCmd
 from utils.logger import MyLogger, LoggerLevels
 
+
 class TestBashCmd(TestCase):
     def setUp(self):
         self.p = Path(__file__).parent
@@ -26,7 +27,9 @@ class TestBashCmd(TestCase):
         print(r, r.ret_code(), r.output())
 
     def test_cmd_with_log(self):
-        r = BashCmd(rundir=self.p) \
-        .with_log(Path(self.p, "ls_cmd.log")) \
-        .run("ls -la")
+        r = (
+            BashCmd(rundir=self.p)
+            .with_log(Path(self.p, "ls_cmd.log"))
+            .run("ls -la")
+        )
         print(r.ret_code())

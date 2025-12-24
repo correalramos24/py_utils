@@ -6,11 +6,12 @@ from pathlib import Path
 from .meta import MetaAbstractClass
 from .utils_files import create_dir, check_path_exists
 
+
 class GenericPersistance(MetaAbstractClass):
     def __init__(self, root_path: Path):
-        self.root : Path = root_path
-        self.meta : Path = Path(self.root, "meta.data")
-        self.entities : dict[Hashable, Any] = dict()
+        self.root: Path = root_path
+        self.meta: Path = Path(self.root, "meta.data")
+        self.entities: dict[Hashable, Any] = dict()
 
         if check_path_exists(root_path):
             self._log("INIT @", root_path)
@@ -21,7 +22,7 @@ class GenericPersistance(MetaAbstractClass):
             create_dir(self.root, False)
             self._save_metadata()
 
-    def store(self, identifier : Hashable, content: Any):
+    def store(self, identifier: Hashable, content: Any):
         self._dbg(f"STORING {identifier} {content}")
         self.entities[identifier] = content
         self._save_metadata()

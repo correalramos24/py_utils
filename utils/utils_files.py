@@ -1,28 +1,38 @@
 
 from pathlib import Path
-import os, shutil, fnmatch
+import os
+import shutil
+import fnmatch
 
 from .utils_py import pathfy
 from .logger import MyLogger
+
 
 class ExpectFile(Exception):
     def __init__(self, path: Path):
         self.path = path
         super().__init__(f"Path {self.path} can't be a folder")
+
+
 # ========================CHECK PRESENCE========================================
+
 def file_exists(f_path: Path | str) -> bool:
     return pathfy(f_path).is_file()
+
 
 def check_file_exists_exception(f_path: Path):
     if not file_exists(f_path):
         raise Exception(f"{f_path} not found!")
 
+
 def check_path_exists(fldr_path: Path | str) -> bool:
     return pathfy(fldr_path).exists()
+
 
 def check_path_exists_exception(fldr_path: Path | str) -> None:
     if not check_path_exists(fldr_path):
         raise Exception(f"{fldr_path} not found!")
+
 
 def explore_fldr(root_path, file_name):
     """Find file_name down the hierarchy of root_path"""
@@ -30,7 +40,9 @@ def explore_fldr(root_path, file_name):
     for dirpath, _, filenames in os.walk(root_path):
         if file_name in filenames:
             rundir_folders.append(dirpath)
+
     return rundir_folders
+
 
 def explore_fldr_wildcard(root_path, file_name_wildcard):
     ret = []
@@ -39,7 +51,9 @@ def explore_fldr_wildcard(root_path, file_name_wildcard):
             ret.append(os.path.abspath(dirpath))
     return ret
 
+
 # ========================CREATE DIRS===========================================
+
 def create_dir(fldr_path: Path, overwrite: bool = False):
     fldr_path = pathfy(fldr_path)
     if fldr_path.exists() and overwrite:
@@ -50,22 +64,32 @@ def create_dir(fldr_path: Path, overwrite: bool = False):
     else:
         raise Exception(f"create_dir {fldr_path} already existing!")
 
+
 # ========================COPY FILES============================================
+
 def copy_folder(ref_fldr: Path, dest_fldr: Path,
                 force: bool, keep_sym: bool = False):
 
     bad_symlinks_excp = False
     _ = shutil.copytree(
-        src = ref_fldr, dst = dest_fldr, symlinks=keep_sym,
-        dirs_exist_ok=force, ignore_dangling_symlinks = bad_symlinks_excp
+        src=ref_fldr,
+        dst=dest_fldr,
+        symlinks=keep_sym,
+        dirs_exist_ok=force,
+        ignore_dangling_symlinks=bad_symlinks_excp,
     )
     MyLogger.success(f"Generated '{dest_fldr}' from '{ref_fldr}'.")
 
-def copy_folder_content(ref_folder: Path,dest_fldr: Path,
-                        force: bool, preserve_symlinks: bool = False,
-                        only_big_files: bool = True,
-                        big_file_threshold: int = 2 * 1024 * 1024):
-    #TODO: Check usage of this
+
+def copy_folder_content(
+    ref_folder: Path,
+    dest_fldr: Path,
+    force: bool,
+    preserve_symlinks: bool = False,
+    only_big_files: bool = True,
+    big_file_threshold: int = 2 * 1024 * 1024,
+):
+    # TODO: Check usage of this
     ref_folder = pathfy(ref_folder)
     dest_fldr = pathfy(dest_fldr)
 
@@ -94,7 +118,7 @@ def copy_folder_content(ref_folder: Path,dest_fldr: Path,
 
         if item.is_symlink():
             if preserve_symlinks:
-                link_target = os.readlink(item)  # Gets the raw link path (could be relative)
+                link_target = os.readlink(item)
                 dest_path.symlink_to(link_target)
             else:
                 resolved = item.resolve()
@@ -103,10 +127,12 @@ def copy_folder_content(ref_folder: Path,dest_fldr: Path,
         elif item.is_file():
             if only_big_files and item.stat().st_size >= big_file_threshold:
                 # Create a relative symlink to the source file from dest
-                relative_target = os.path.relpath(item.resolve(), start=dest_path.parent)
+                relative_target = os.path.relpath(item.resolve(),
+                                                  start=dest_path.parent)
                 dest_path.symlink_to(relative_target)
             else:
                 _ = shutil.copy2(item, dest_path)
+
 
 def copy_file(src: Path, dst: Path):
     if not src.is_file():
@@ -122,6 +148,7 @@ def copy_file(src: Path, dst: Path):
 
 # =======================GEN SYMLINKS===========================================
 
+
 def gen_symlink(source: Path, destination: Path):
     destination.parent.mkdir(parents=True, exist_ok=True)
 
@@ -131,15 +158,23 @@ def gen_symlink(source: Path, destination: Path):
             destination.unlink()
 
         # Crear symlink relativo si es posible
-        relative_target = source.relative_to(destination.parent) if source.is_absolute() and destination.parent in source.parents else source
+        if source.is_absolute() and destination.parent in source.parents:
+            relative_target = source.relative_to(destination.parent)
+        else:
+            relative_target = source
+
         destination.symlink_to(relative_target)
 
     except Exception as e:
-        raise RuntimeError(f"Failed to create symlink from {destination} to {source}: {e}")
+        raise RuntimeError(f"Failed to create symlink from \
+                           {destination} to {source}: {e}")
 
-def gen_symlink_from_folder(source: Path, destination: Path, only_big_files: bool = False):
+
+def gen_symlink_from_folder(source: Path, destination: Path,
+                            only_big_files: bool = False):
     """
-    Create a symlink for each file/folder in the source folder to the destination folder.
+    Create a symlink for each file/folder in the source folder
+    to the destination folder.
     """
     if not source.is_dir():
         raise NotADirectoryError(f"Source '{source}' is not a directory.")
