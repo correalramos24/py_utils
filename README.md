@@ -15,6 +15,11 @@ have something self-build :).
 * utils_py: Collection of methods to shortcut stuff. 
 
 
-## Testing
+## Environment
 
-Unit testing using **unittest** is defined at the tests package
+The env.bash file contains all the required functions to work with
+the virutal environment and the testing. All the dependencies are in the *requirements.txt* file
+
+### Testing
+
+Unit testing for the utilites is built using **unittest**. You can run the tests using ``python -m unittest discover -s tests`` or the bash function ``launch_tests``.
