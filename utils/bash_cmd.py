@@ -1,9 +1,12 @@
 
-import os, subprocess, shlex
+import os
+import subprocess
+import shlex
 from pathlib import Path
 from typing import Optional, List
 
 from .meta import MetaAbstractClass
+
 
 class BashCmd(MetaAbstractClass):
     """Run a Bash command at a certain rundir"""
@@ -36,8 +39,14 @@ class BashCmd(MetaAbstractClass):
         try:
             if self._log_file:
                 with open(self._log_file, "w", encoding="utf-8") as fd:
-                    r = subprocess.run(full_cmd, cwd=self.p, check=False,
-                                       text=True,stdout=fd, stderr=err_trg)
+                    r = subprocess.run(
+                        full_cmd,
+                        cwd=self.p,
+                        check=False,
+                        text=True,
+                        stdout=fd,
+                        stderr=err_trg,
+                    )
                     self._output = r.stdout.strip() if r.stdout else ""
                     self._cmplt_run = r
             else:

@@ -4,6 +4,7 @@ import f90nml
 
 from .utils_files import check_file_exists_exception
 
+
 class FnNamelist:
     def __init__(self, namelist_path: Path):
         check_file_exists_exception(namelist_path)
@@ -43,5 +44,3 @@ class FnNamelist:
                 nml[namelist_name][key] = value
 
         f90nml.write(nml, str(self.p), force=True)
-
-

@@ -3,6 +3,7 @@ from pathlib import Path
 
 from .bash_script import BashCmd
 
+
 class GitProject:
     """Information of a git repository."""
     def __init__(self, path: Path):
@@ -11,7 +12,6 @@ class GitProject:
     def git_commit(self) -> str:
         """Get the git commit hash."""
         return self.b_manager.run("git rev-parse --abbrev-ref HEAD").output()
-
 
     def git_branch(self) -> str:
         """Get current git branch name."""
