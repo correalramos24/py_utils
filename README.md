@@ -18,7 +18,7 @@ have something self-build :).
 ## Environment
 
 The env.bash file contains all the required functions to work with
-the virutal environment and the testing. All the dependencies are in the *requirements.txt* file
+the virutal environment and the testing. All the dependencies are in the *requirements.txt* file (pip install -r requirements.txt).
 
 ### Testing
 
